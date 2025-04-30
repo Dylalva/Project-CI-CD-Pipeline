@@ -1,0 +1,60 @@
+# azure-pipelines.yml
+trigger:
+  branches:
+    include:
+      - master   # tu rama principal se llama "master"
+
+variables:
+  # 1) Usuario / repo de Docker Hub
+  IMAGE_NAME: dylalva/parte2redes
+  # 2) Tag dinámico por número de Build
+  IMAGE_TAG: $(Build.BuildId)
+
+stages:
+- stage: Build
+  displayName: '🚧 Build & Push Docker Image'
+  jobs:
+  - job: Build
+    displayName: '🔨 Build Image'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+
+    - task: Docker@2
+      displayName: 'Build & Push to Docker Hub'
+      inputs:
+        command: buildAndPush
+        containerRegistry: 'DockerHub-Connection'   # <- tu Service Connection Docker Hub
+        repository: '$(IMAGE_NAME)'
+        dockerfile: '**/Dockerfile'
+        tags: |
+          $(IMAGE_TAG)
+          latest
+
+- stage: Deploy
+  displayName: '🚀 Deploy to AKS'
+  dependsOn: Build
+  jobs:
+  - deployment: AKS_Deploy
+    displayName: 'Deploy en AKS'
+    environment: 'aks-environment'  # opcional
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Kubectl@1
+            displayName: 'kubectl apply manifests'
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: 'Azure-Connection-AKS'  # <- tu Service Connection ARM
+              azureResourceGroup: 'k8spruebas'
+              kubernetesCluster: 'PRUEBA'
+              namespace: 'default'
+              command: apply
+              useConfigurationFile: true
+              configuration: |
+                manifests/deployment.yaml
+                manifests/service.yaml
