@@ -45,7 +45,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: Kubectl@1
+          - task: Kubernetes@1
             displayName: 'kubectl apply manifests'
             inputs:
               connectionType: 'Azure Resource Manager'
