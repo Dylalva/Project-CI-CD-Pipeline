@@ -56,7 +56,7 @@ jobs:
     - name: ⚙️ Configure AKS context
       uses: azure/aks-set-context@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}   # ← ¡Aquí agregamos el input que faltaba!
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
         resource-group: k8spruebas
         cluster-name: PRUEBA
 

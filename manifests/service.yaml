@@ -1,14 +1,12 @@
-# manifests/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: parte2redes-service
-  namespace: default
 spec:
   type: LoadBalancer
   selector:
     app: parte2redes
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 5000
     protocol: TCP
