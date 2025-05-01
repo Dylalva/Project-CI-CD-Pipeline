@@ -12,8 +12,6 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image-tag: ${{ env.IMAGE_TAG }}
     steps:
     - name: 📥 Checkout repo
       uses: actions/checkout@v4
@@ -58,6 +56,7 @@ jobs:
     - name: ⚙️ Configure AKS context
       uses: azure/aks-set-context@v1
       with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}   # ← ¡Aquí agregamos el input que faltaba!
         resource-group: k8spruebas
         cluster-name: PRUEBA
 
