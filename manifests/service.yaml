@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: parte2redes-service
+  namespace: default
 spec:
   type: LoadBalancer
   selector:

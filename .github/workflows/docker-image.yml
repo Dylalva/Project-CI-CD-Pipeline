@@ -7,7 +7,6 @@ on:
 
 env:
   IMAGE_NAME: dylalva/parte2redes
-  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -26,13 +25,12 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    - name: 🏗️ Build and push image
+    - name: 🏗️ Build and push image:latest
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
         tags: |
-          docker.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           docker.io/${{ env.IMAGE_NAME }}:latest
 
   deploy-to-aks:
@@ -60,7 +58,11 @@ jobs:
         resource-group: k8spruebas
         cluster-name: PRUEBA
 
-    - name: 🚀 Deploy to AKS
+    - name: 🚀 Deploy manifests
       run: |
         kubectl apply -f manifests/deployment.yaml
         kubectl apply -f manifests/service.yaml
+
+    - name: 🔄 Rollout restart deployment
+      run: |
+        kubectl rollout restart deployment parte2redes-deployment -n default

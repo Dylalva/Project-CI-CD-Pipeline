@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: parte2redes-deployment
+  namespace: default
   labels:
     app: parte2redes
 spec:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
       - name: parte2redes
-        image: dylalva/parte2redes:latest
+        image: docker.io/dylalva/parte2redes:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
