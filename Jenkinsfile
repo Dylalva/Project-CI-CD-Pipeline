@@ -18,7 +18,9 @@ pipeline {
                 script {
                     // Realizar login directamente con el comando 'sh' para evitar problemas de seguridad
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                        sh '''
+                            echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+                        '''
                     }
                 }
             }
@@ -38,7 +40,9 @@ pipeline {
                 script {
                     // Push de la imagen construida a Docker Hub
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'docker push ${IMAGE_NAME}:latest'
+                        sh '''
+                            docker push ${IMAGE_NAME}:latest
+                        '''
                     }
                 }
             }
