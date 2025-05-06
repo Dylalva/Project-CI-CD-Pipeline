@@ -2,8 +2,8 @@ pipeline {
     agent any
     environment {
         IMAGE_NAME = 'dylalva/parte2redes'
-        DOCKERHUB_CREDS = 'dockerhub-creds'  // Cambia esto por el ID de tu credencial de Docker Hub en Jenkins
-        AZURE_CREDS = 'azure-credentials'   // Cambia esto por el ID de tus credenciales de Azure en Jenkins
+        DOCKERHUB_CREDS = 'dockerhub-cred'  // Cambia esto por el ID de tu credencial de Docker Hub en Jenkins
+        AZURE_CREDS = 'azure-service-principal'   // Cambia esto por el ID de tus credenciales de Azure en Jenkins
     }
     stages {
         stage('Checkout') {
