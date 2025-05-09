@@ -51,7 +51,7 @@ stages:
               connectionType: 'Azure Resource Manager'
               azureSubscription: 'Azure-Connection-AKS'  # <- tu Service Connection ARM
               azureResourceGroup: 'k8spruebas'
-              kubernetesCluster: 'PRUEBA'
+              kubernetesCluster: 'PRUEBAS'
               namespace: 'default'
               command: apply
               useConfigurationFile: true
