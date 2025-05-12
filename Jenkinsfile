@@ -66,7 +66,7 @@ pipeline {
         stage('Deploy to AKS') {
             steps {
                 sh '''
-                    az aks get-credentials --resource-group k8spruebas --name PRUEBAS
+                    az aks get-credentials --resource-group k8spruebas --name PRUEBAS --overwrite-existing
 
                     kubectl apply -f manifests/deployment.yaml
                     kubectl apply -f manifests/service.yaml
