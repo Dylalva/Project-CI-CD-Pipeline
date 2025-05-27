@@ -1,0 +1,66 @@
+# ---------------------------------------
+# Configuración básica del sitio
+# ---------------------------------------
+title: Mi Sitio Jekyll             # Título de tu sitio
+description: >                      # Descripción corta (meta.descripcion)
+  Un sitio estático generado con Jekyll
+baseurl: ""                        # Si lo publicas en https://usuario.github.io/repo, pon "/repo"
+url: "https://dylalva.github.io/PruebasRedes/"   # Cambia "usuario" por tu usuario de GitHub
+
+# ---------------------------------------
+# Elección de tema y plugins
+# ---------------------------------------
+theme: minima                      # Tema oficial de GitHub Pages (puedes cambiarlo)
+plugins:                           # Plugins permitidos por GitHub Pages
+  - jekyll-feed                    # Generar un feed RSS
+  - jekyll-seo-tag                 # Metadatos SEO automáticos
+
+# Si usas más plugins (o privados), recuerda instalarlos en tu Gemfile
+# y usar el workflow con Actions para compilar.
+
+# ---------------------------------------
+# Markdown y formatos
+# ---------------------------------------
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# ---------------------------------------
+# Configuración de Collections (opcional)
+# ---------------------------------------
+# collections:
+#   posts:
+#     output: true
+
+# ---------------------------------------
+# Personalizaciones varias
+# ---------------------------------------
+author:
+  name: Dylan Elizondo Alvarado
+  email: dylalva1933@gmail.com
+
+permalink: /:categories/:year/:month/:day/:title.html
+paginate: 5          # Número de posts por página en blogs tipo index
+paginate_path: "/page:num/"
+
+# ---------------------------------------
+# Exclusiones y archivos estáticos
+# ---------------------------------------
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+include:
+  - _pages           # Si quieres servir páginas estáticas fuera de _posts
+
+# ---------------------------------------
+# Configuración de GitHub Pages
+# ---------------------------------------
+github:
+  is_project_page: true  # true si el repositorio no es username.github.io
+
+# Si usas un dominio personalizado:
+# cname: "www.midominio.com"
