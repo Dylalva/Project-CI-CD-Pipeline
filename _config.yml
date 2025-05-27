@@ -10,7 +10,7 @@ url: "https://dylalva.github.io/PruebasRedes/"   # Cambia "usuario" por tu usuar
 # ---------------------------------------
 # Elección de tema y plugins
 # ---------------------------------------
-theme: just-the-docs                      # Tema oficial de GitHub Pages (puedes cambiarlo)
+remote_theme: just-the-docs/just-the-docs
 plugins:                           # Plugins permitidos por GitHub Pages
   - jekyll-feed                    # Generar un feed RSS
   - jekyll-seo-tag                 # Metadatos SEO automáticos
