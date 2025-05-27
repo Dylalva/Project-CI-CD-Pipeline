@@ -4,16 +4,17 @@
 title: Mi Sitio Jekyll             # Título de tu sitio
 description: >                      # Descripción corta (meta.descripcion)
   Un sitio estático generado con Jekyll
-baseurl: ""                        # Si lo publicas en https://usuario.github.io/repo, pon "/repo"
-url: "https://dylalva.github.io/PruebasRedes/"   # Cambia "usuario" por tu usuario de GitHub
+baseurl: "/PruebasRedes"
+url: "https://dylalva.github.io"
 
 # ---------------------------------------
 # Elección de tema y plugins
 # ---------------------------------------
 remote_theme: just-the-docs/just-the-docs
-plugins:                           # Plugins permitidos por GitHub Pages
-  - jekyll-feed                    # Generar un feed RSS
-  - jekyll-seo-tag                 # Metadatos SEO automáticos
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
 
 # Si usas más plugins (o privados), recuerda instalarlos en tu Gemfile
 # y usar el workflow con Actions para compilar.
@@ -53,6 +54,7 @@ exclude:
   - node_modules
   - vendor
 
+
 include:
   - _pages           # Si quieres servir páginas estáticas fuera de _posts
 
@@ -61,6 +63,3 @@ include:
 # ---------------------------------------
 github:
   is_project_page: true  # true si el repositorio no es username.github.io
-
-# Si usas un dominio personalizado:
-# cname: "www.midominio.com"
