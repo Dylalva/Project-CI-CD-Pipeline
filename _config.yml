@@ -4,7 +4,7 @@
 title: Proyecto 2 de Redes            # Título de tu sitio
 description: >                      
   Un sitio estático generado con Jekyll
-baseurl: "/Proyecto2Redes"   # Asegúrate que este baseurl coincide con tu repo/project
+baseurl: "/"   # Asegúrate que este baseurl coincide con tu repo/project
 url: "https://dylalva.github.io"
 
 # ---------------------------------------
