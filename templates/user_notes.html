@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}My Notes{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 700px;">
+  <h2 class="mb-4">My Notes</h2>
+  <a href="{{ url_for('add_note') }}" class="btn btn-success mb-3">Add Note</a>
+  {% if notes %}
+    <div class="list-group">
+      {% for note in notes %}
+        <div class="list-group-item mb-2">
+          <h5>{{ note.title }}</h5>
+          <small>{{ note.date }}</small>
+          <p>{{ note.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No notes found.</p>
+  {% endif %}
+</div>
+{% endblock %}
+

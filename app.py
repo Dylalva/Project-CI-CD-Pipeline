@@ -4,7 +4,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL, Email, EqualTo, Length
 import csv
-from firebase_auth import login_user, register_user, logout_user, get_current_user, login_with_google
+from firebase_auth import login_user, register_user, logout_user, get_current_user, login_with_google, firebase_config
+
+from utils_crypto import generate_key, hash_data, encrypt_data, decrypt_data
+import datetime
+import pyrebase
 
 '''
 Red underlines? Install the required packages first: 
@@ -14,7 +18,7 @@ On Windows type:
 python -m pip install -r requirements.
 
 On MacOS type:
-pip3 install -r requirements.txt
+pip3 install -r requirements.tx
 
 This will install the packages from requirements.txt for this project.
 '''
@@ -49,6 +53,12 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
     confirm = PasswordField('Repetir Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
     submit = SubmitField('Registrarse')
+
+
+class NoteForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    submit = SubmitField('Add Note')
 
 
 @app.route("/")
@@ -126,6 +136,89 @@ def google_callback():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'No se pudo iniciar sesión con Google.'})
+
+
+def get_user_id_token(user):
+    # Busca el idToken en los posibles lugares
+    if 'idToken' in user:
+        return user['idToken']
+    if 'id_token' in user:
+        return user['id_token']
+    # Google login puede anidar el token
+    if 'idToken' in user.get('stsTokenManager', {}):
+        return user['stsTokenManager']['idToken']
+    # Google login con REST puede devolver 'idToken' en la raíz
+    if 'idToken' in user.get('user', {}):
+        return user['user']['idToken']
+    # Si no se encuentra, retorna None
+    return None
+
+
+@app.route('/add_note', methods=['GET', 'POST'])
+def add_note():
+    if not session.get('user'):
+        return redirect(url_for('login'))
+    form = NoteForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        description = form.description.data
+        date = datetime.datetime.now().strftime('%d-%m-%Y %H-%M')
+        note_hash = hash_data(title + description + date)
+        user = session['user']
+        uid = user.get('localId') or user.get('user_id') or user.get('uid')
+        id_token = get_user_id_token(user)
+        if not id_token:
+            return 'Authentication token not found. Please log in again.', 401
+        key = generate_key(uid)
+        encrypted_title = encrypt_data(title, key).decode()
+        encrypted_description = encrypt_data(description, key).decode()
+        encrypted_date = encrypt_data(date, key).decode()
+        firebase_db = pyrebase.initialize_app(firebase_config).database()
+        note_obj = {
+            'title': encrypted_title,
+            'description': encrypted_description,
+            'date': encrypted_date,
+            'hash': note_hash
+        }
+        print("UID:", uid)
+        print("ID_TOKEN:", id_token)
+        print("NOTE_OBJ:", note_obj)
+        try:
+            firebase_db.child('notes').child(uid).push(note_obj, id_token)
+        except Exception as e:
+            print("Error al hacer push:", e)
+            return f"Error al guardar la nota: {e}", 500
+        return redirect(url_for('user_notes'))
+    return render_template('add_note.html', form=form)
+
+
+@app.route('/user_notes')
+def user_notes():
+    if not session.get('user'):
+        return redirect(url_for('login'))
+    user = session['user']
+    uid = user.get('localId') or user.get('user_id') or user.get('uid')
+    id_token = get_user_id_token(user)
+    if not id_token:
+        return 'Authentication token not found. Please log in again.', 401
+    key = generate_key(uid)
+    firebase_db = pyrebase.initialize_app(firebase_config).database()
+    notes = []
+    try:
+        notes_data = firebase_db.child('notes').child(uid).get(id_token).val()
+        if notes_data:
+            for note_id, note in notes_data.items():
+                try:
+                    title = decrypt_data(note['title'].encode(), key)
+                    description = decrypt_data(note['description'].encode(), key)
+                    date = decrypt_data(note['date'].encode(), key)
+                    notes.append({'title': title, 'description': description, 'date': date})
+                except Exception:
+                    continue
+    except Exception:
+        notes = []
+    notes = sorted(notes, key=lambda n: n['date'], reverse=True)
+    return render_template('user_notes.html', notes=notes)
 
 
 if __name__ == '__main__':

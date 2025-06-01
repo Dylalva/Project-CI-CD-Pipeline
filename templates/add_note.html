@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Add Note{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+  <h2 class="mb-4">Add a Secure Note</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.title.label(class="form-label") }}
+      {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      {{ form.description.label(class="form-label") }}
+      {{ form.description(class="form-control", rows=4) }}
+    </div>
+    <div class="mb-3">
+      {{ form.submit(class="btn btn-success w-100") }}
+    </div>
+  </form>
+</div>
+{% endblock %}
+

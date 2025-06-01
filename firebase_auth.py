@@ -5,7 +5,7 @@ import requests
 firebase_config = {
   "apiKey": "AIzaSyDGumoDc1Gr0iNcOjFFpwTvU2WUXWV0LLI",
   "authDomain": "ci-cd-app-6589f.firebaseapp.com",
-  "databaseURL": "https://ci-cd-app-6589f.firebaseio.com",
+  "databaseURL": "https://ci-cd-app-6589f-default-rtdb.firebaseio.com",
   "projectId": "ci-cd-app-6589f",
   "storageBucket": "ci-cd-app-6589f.appspot.com",
   "messagingSenderId": "518988882520",
@@ -52,6 +52,9 @@ def login_with_google(id_token):
         res = requests.post(url, json=payload)
         res.raise_for_status()
         user = res.json()
+        # Normaliza el token para que siempre esté en la raíz como 'idToken'
+        if 'idToken' not in user and 'id_token' in user:
+            user['idToken'] = user['id_token']
         session['user'] = user
         return True, None
     except Exception as e:
