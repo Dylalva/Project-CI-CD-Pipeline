@@ -18,12 +18,14 @@
     {% endblock %}
 
     <title>{% block title %}{% endblock %}</title>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <!-- Header de navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('home') }}">Cafés</a>
+        <a class="navbar-brand" href="{{ url_for('home') }}">Coffees</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -34,14 +36,14 @@
                 <span class="nav-link">{{ session['user']['email'] }}</span>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                <a class="nav-link" href="{{ url_for('logout') }}">Log out</a>
               </li>
             {% else %}
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('register') }}">Registrarse</a>
+                <a class="nav-link" href="{{ url_for('register') }}">Register</a>
               </li>
             {% endif %}
           </ul>
@@ -49,5 +51,6 @@
       </div>
     </nav>
     {% block content %}{% endblock %}
+    {% block scripts %}{% endblock %}
   </body>
 </html>

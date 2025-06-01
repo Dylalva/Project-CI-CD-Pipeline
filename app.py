@@ -1,10 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, URL, Email, EqualTo, Length
 import csv
-from firebase_auth import login_user, register_user, logout_user, get_current_user
+from firebase_auth import login_user, register_user, logout_user, get_current_user, login_with_google
 
 '''
 Red underlines? Install the required packages first: 
@@ -22,6 +22,8 @@ This will install the packages from requirements.txt for this project.
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 Bootstrap5(app)
+
+GOOGLE_CLIENT_ID = "518988882520-vkpu0vaei5em441fk884em3i93fqpvl3.apps.googleusercontent.com"  # Reemplaza por tu Client ID real
 
 
 class CafeForm(FlaskForm):
@@ -91,7 +93,7 @@ def login():
             return redirect(url_for('home'))
         else:
             error = 'Error al iniciar sesión: ' + (msg or '')
-    return render_template('login.html', form=form, error=error)
+    return render_template('login.html', form=form, error=error, google_client_id=GOOGLE_CLIENT_ID)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -116,10 +118,14 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/login/google')
-def login_google():
-    # Aquí deberías implementar el flujo OAuth de Google con Firebase
-    return 'Funcionalidad de Google Login aún no implementada.'
+@app.route('/login/google/callback', methods=['POST'])
+def google_callback():
+    id_token = request.json.get('id_token')
+    success, msg = login_with_google(id_token)
+    if success:
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'No se pudo iniciar sesión con Google.'})
 
 
 if __name__ == '__main__':

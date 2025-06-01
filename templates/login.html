@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}Iniciar Sesión{% endblock %}
+{% block title %}Sign In{% endblock %}
 {% block content %}
 <div class="container mt-5" style="max-width: 400px;">
-  <h2 class="mb-4">Iniciar Sesión</h2>
+  <h2 class="mb-4">Sign In</h2>
   <form method="POST">
     {{ form.hidden_tag() }}
     <div class="mb-3">
@@ -13,19 +13,65 @@
       {{ form.password.label(class="form-label") }}
       {{ form.password(class="form-control") }}
     </div>
-    {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
     <div class="mb-3">
       {{ form.submit(class="btn btn-primary w-100") }}
     </div>
     <div class="mb-3 text-center">
-      <a href="{{ url_for('login_google') }}" class="btn btn-danger w-100">Iniciar sesión con Google</a>
+      <div id="g_id_onload"
+           data-client_id="{{ google_client_id }}"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
     </div>
     <div class="mb-3 text-center">
-      ¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a>
+      Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
     </div>
   </form>
 </div>
 {% endblock %}
-
+{% block scripts %}
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  window.handleCredentialResponse = function(response) {
+    fetch("{{ url_for('google_callback') }}", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({id_token: response.credential})
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = "{{ url_for('home') }}";
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.error || 'Could not sign in with Google.',
+          confirmButtonText: 'Accept'
+        });
+      }
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Could not sign in with Google.',
+        confirmButtonText: 'Accept'
+      });
+    });
+  }
+</script>
+{% if error %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: '{{ error }}',
+      confirmButtonText: 'Accept'
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,14 +1,16 @@
 import pyrebase
 from flask import session
+import requests
 
 firebase_config = {
-    "apiKey": "TU_API_KEY",
-    "authDomain": "TU_AUTH_DOMAIN",
-    "databaseURL": "TU_DATABASE_URL",
-    "projectId": "TU_PROJECT_ID",
-    "storageBucket": "TU_STORAGE_BUCKET",
-    "messagingSenderId": "TU_MESSAGING_SENDER_ID",
-    "appId": "TU_APP_ID"
+  "apiKey": "AIzaSyDGumoDc1Gr0iNcOjFFpwTvU2WUXWV0LLI",
+  "authDomain": "ci-cd-app-6589f.firebaseapp.com",
+  "databaseURL": "https://ci-cd-app-6589f.firebaseio.com",
+  "projectId": "ci-cd-app-6589f",
+  "storageBucket": "ci-cd-app-6589f.appspot.com",
+  "messagingSenderId": "518988882520",
+  "appId": "1:518988882520:web:0ffbe42be85343cce9a02d",
+  "measurementId": "G-JE3KWE671Z"
 }
 
 firebase = pyrebase.initialize_app(firebase_config)
@@ -37,3 +39,20 @@ def logout_user():
 def get_current_user():
     return session.get('user')
 
+def login_with_google(id_token):
+    try:
+        api_key = firebase_config["apiKey"]
+        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key={api_key}"
+        payload = {
+            "postBody": f"id_token={id_token}&providerId=google.com",
+            "requestUri": "http://localhost:5000/login",
+            "returnIdpCredential": True,
+            "returnSecureToken": True
+        }
+        res = requests.post(url, json=payload)
+        res.raise_for_status()
+        user = res.json()
+        session['user'] = user
+        return True, None
+    except Exception as e:
+        return False, str(e)
