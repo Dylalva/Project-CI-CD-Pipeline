@@ -1,5 +1,5 @@
 ---
-title: Home (Español)
+title: Home
 description: Página principal de la documentación en español del proyecto CI/CD Pipeline.
 ---
 # ¡Bienvenido a la Wiki del Proyecto! / Welcome to the Project Wiki!
