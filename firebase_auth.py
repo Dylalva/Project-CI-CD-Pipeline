@@ -1,10 +1,12 @@
+import os
+from dotenv import load_dotenv
 import pyrebase
 from flask import session
 import requests
 
+load_dotenv()
+
 firebase_config = {
-  "apiKey": "AIzaSyDGumoDc1Gr0iNcOjFFpwTvU2WUXWV0LLI",
-  "authDomain": "ci-cd-app-6589f.firebaseapp.com",
   "databaseURL": "https://ci-cd-app-6589f-default-rtdb.firebaseio.com",
   "projectId": "ci-cd-app-6589f",
   "storageBucket": "ci-cd-app-6589f.appspot.com",

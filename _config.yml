@@ -1,36 +1,21 @@
-# ---------------------------------------
-# Configuración básica del sitio
-# ---------------------------------------
-title: Proyecto 2 de Redes            # Título de tu sitio
+title: Project-CI-CD-Pipeline
 description: >                      
   Un sitio estático generado con Jekyll
-baseurl: "/"   # Asegúrate que este baseurl coincide con tu repo/project
+baseurl: "/Project-CI-CD-Pipeline"
 url: "https://dylalva.github.io"
 
-# ---------------------------------------
-# Indicar que la carpeta 'docs' es la fuente del sitio
-# ---------------------------------------
-source: docs    # <-- Esta línea indica que 'docs' es la raíz para Jekyll
+source: docs
 
-# ---------------------------------------
-# Elección de tema y plugins
-# ---------------------------------------
 remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
-# ---------------------------------------
-# Markdown y formatos
-# ---------------------------------------
 markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
 
-# ---------------------------------------
-# Personalizaciones varias
-# ---------------------------------------
 author:
   name: Dylan Elizondo Alvarado
   email: dylalva1933@gmail.com
@@ -38,9 +23,6 @@ author:
 permalink: /:categories/:year/:month/:day/:title.html
 paginate_path: "/page:num/"
 
-# ---------------------------------------
-# Exclusiones y archivos estáticos
-# ---------------------------------------
 exclude:
   - Gemfile
   - Gemfile.lock
@@ -50,8 +32,5 @@ exclude:
 include:
   - _pages
 
-# ---------------------------------------
-# Configuración de GitHub Pages
-# ---------------------------------------
 github:
   is_project_page: true
