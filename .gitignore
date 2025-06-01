@@ -1,0 +1,23 @@
+# PyCharm
+.idea/
+*.iml
+*.iws
+out/
+
+# VSCode
+.vscode/
+
+# Virtual environments
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+.env
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+lib/

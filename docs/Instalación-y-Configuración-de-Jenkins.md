@@ -167,6 +167,7 @@ El registrar el usuario **Jenkins** le dará la dirección con la cual puede acc
    * Ingresa el **Username** y **Password** correspondientes.
    * Asigna un **ID** identificador único para la credencial (ejemplo: `dockerhub-cred`).
    * Opcionalmente, agrega una descripción para identificarla mejor.
+> Nota: [Como Obtener credenciales de Docker Hub](Como-Obtener-credenciales-de-Docker-Hub)
 
 6. **Guardar las credenciales**
 

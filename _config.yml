@@ -1,11 +1,16 @@
 # ---------------------------------------
 # Configuración básica del sitio
 # ---------------------------------------
-title: Mi Sitio Jekyll             # Título de tu sitio
-description: >                      # Descripción corta (meta.descripcion)
+title: Proyecto 2 de Redes            # Título de tu sitio
+description: >                      
   Un sitio estático generado con Jekyll
-baseurl: "/PruebasRedes"
+baseurl: "/Proyecto2Redes"   # Asegúrate que este baseurl coincide con tu repo/project
 url: "https://dylalva.github.io"
+
+# ---------------------------------------
+# Indicar que la carpeta 'docs' es la fuente del sitio
+# ---------------------------------------
+source: docs    # <-- Esta línea indica que 'docs' es la raíz para Jekyll
 
 # ---------------------------------------
 # Elección de tema y plugins
@@ -14,10 +19,6 @@ remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
-
-
-# Si usas más plugins (o privados), recuerda instalarlos en tu Gemfile
-# y usar el workflow con Actions para compilar.
 
 # ---------------------------------------
 # Markdown y formatos
@@ -28,13 +29,6 @@ kramdown:
   hard_wrap: false
 
 # ---------------------------------------
-# Configuración de Collections (opcional)
-# ---------------------------------------
-# collections:
-#   posts:
-#     output: true
-
-# ---------------------------------------
 # Personalizaciones varias
 # ---------------------------------------
 author:
@@ -42,7 +36,6 @@ author:
   email: dylalva1933@gmail.com
 
 permalink: /:categories/:year/:month/:day/:title.html
-paginate: 5          # Número de posts por página en blogs tipo index
 paginate_path: "/page:num/"
 
 # ---------------------------------------
@@ -54,12 +47,11 @@ exclude:
   - node_modules
   - vendor
 
-
 include:
-  - _pages           # Si quieres servir páginas estáticas fuera de _posts
+  - _pages
 
 # ---------------------------------------
 # Configuración de GitHub Pages
 # ---------------------------------------
 github:
-  is_project_page: true  # true si el repositorio no es username.github.io
+  is_project_page: true
