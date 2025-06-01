@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 400px;">
+  <h2 class="mb-4">Iniciar Sesión</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      {{ form.password.label(class="form-label") }}
+      {{ form.password(class="form-control") }}
+    </div>
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <div class="mb-3">
+      {{ form.submit(class="btn btn-primary w-100") }}
+    </div>
+    <div class="mb-3 text-center">
+      <a href="{{ url_for('login_google') }}" class="btn btn-danger w-100">Iniciar sesión con Google</a>
+    </div>
+    <div class="mb-3 text-center">
+      ¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

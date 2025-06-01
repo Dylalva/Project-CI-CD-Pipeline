@@ -1,9 +1,10 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, session
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
-from wtforms.validators import DataRequired, URL
+from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms.validators import DataRequired, URL, Email, EqualTo, Length
 import csv
+from firebase_auth import login_user, register_user, logout_user, get_current_user
 
 '''
 Red underlines? Install the required packages first: 
@@ -32,6 +33,20 @@ class CafeForm(FlaskForm):
     wifi_rating = SelectField("Wifi Strength Rating", choices=["✘", "💪", "💪💪", "💪💪💪", "💪💪💪💪", "💪💪💪💪💪"], validators=[DataRequired()])
     power_rating = SelectField("Power Socket Availability", choices=["✘", "🔌", "🔌🔌", "🔌🔌🔌", "🔌🔌🔌🔌", "🔌🔌🔌🔌🔌"], validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class LoginForm(FlaskForm):
+    email = StringField('Correo', validators=[DataRequired(), Email()])
+    password = PasswordField('Contraseña', validators=[DataRequired()])
+    submit = SubmitField('Iniciar sesión')
+
+
+class RegisterForm(FlaskForm):
+    name = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=50)])
+    email = StringField('Correo', validators=[DataRequired(), Email()])
+    password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6)])
+    confirm = PasswordField('Repetir Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
+    submit = SubmitField('Registrarse')
 
 
 @app.route("/")
@@ -64,6 +79,47 @@ def cafes():
             list_of_rows.append(row)
 
     return render_template('cafes.html', cafes=list_of_rows)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    error = None
+    if form.validate_on_submit():
+        success, msg = login_user(form.email.data, form.password.data)
+        if success:
+            return redirect(url_for('home'))
+        else:
+            error = 'Error al iniciar sesión: ' + (msg or '')
+    return render_template('login.html', form=form, error=error)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    error = None
+    if form.validate_on_submit():
+        if form.password.data != form.confirm.data:
+            error = 'Las contraseñas no coinciden.'
+        else:
+            success, msg = register_user(form.name.data, form.email.data, form.password.data)
+            if success:
+                return redirect(url_for('login'))
+            else:
+                error = 'Error al registrar: ' + (msg or '')
+    return render_template('register.html', form=form, error=error)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route('/login/google')
+def login_google():
+    # Aquí deberías implementar el flujo OAuth de Google con Firebase
+    return 'Funcionalidad de Google Login aún no implementada.'
 
 
 if __name__ == '__main__':
