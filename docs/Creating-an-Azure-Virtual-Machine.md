@@ -1,3 +1,7 @@
+---
+title: Creating an Azure Virtual Machine
+description: Step-by-step guide to set up a CI/CD pipeline for a Flask app using Jenkins and AKS on Azure, including prerequisites and environment setup.
+---
 ## 📖 Project Description
 
 In this second part of the **Networks Project**, we implement a **CI/CD pipeline** for a **Python (Flask)** web application, fully **containerized** and deployed on **Azure Kubernetes Service (AKS)**. The overall flow is:
@@ -102,3 +106,4 @@ Before getting started, make sure you have:
    * Make a **PUSH** to the main branch of your GitHub repo.
    * Watch Jenkins trigger the pipeline.
    * Once it finishes, go to your **Load Balancer** or configured domain to see the Flask app running in production.
+

@@ -1,3 +1,8 @@
+---
+title: Link GitHub Repository with Jenkins
+description: Step-by-step guide to link a GitHub repository with Jenkins and configure a webhook.
+---
+
 ## How to Add a Webhook in GitHub
 
 1. **Go to Repository Settings**

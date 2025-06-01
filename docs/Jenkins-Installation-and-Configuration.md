@@ -1,3 +1,7 @@
+---
+title: Jenkins Installation and Configuration
+description: Step-by-step guide to install and configure Jenkins on an Azure VM, including pipeline setup and plugin installation.
+---
 # 📋 Requirements:
 
 Before starting, make sure you have:

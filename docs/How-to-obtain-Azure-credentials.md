@@ -1,3 +1,7 @@
+---
+title: How to Obtain Azure Credentials
+description: Step-by-step guide to create and obtain Azure credentials for CI/CD integrations like Jenkins.
+---
 # How to Obtain Azure Credentials
 
 ## Creating Azure Credentials for Jenkins
@@ -37,3 +41,4 @@ And that’s it! With this, you have the necessary credentials for Jenkins.
 ![Screenshot 4](https://github.com/user-attachments/assets/c7af339e-1a7f-419b-ae53-17e2ff164b61)
 ![Screenshot 5](https://github.com/user-attachments/assets/ffe74b31-71f1-42e4-9f6b-338ae656c5a2)
 ![Screenshot 6](https://github.com/user-attachments/assets/be69d5c6-3744-4c4f-8428-2c4349bfad58)
+

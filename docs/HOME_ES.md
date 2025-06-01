@@ -1,6 +1,10 @@
+---
+title: Pipeline CI/CD para Flask en Azure
+description: Implementación de un pipeline CI/CD para una aplicación Flask contenedorizada y desplegada en Azure Kubernetes Service (AKS).
+---
 ## 📖 Descripción del Proyecto
 
-En esta segunda parte del **Proyecto de Redes**, implementamos un **pipeline de CI/CD** para una aplicación web en **Python (Flask)**, totalmente **contenedorizada** y desplegada en **Azure Kubernetes Service (AKS)**. El flujo general es:
+En este proyecto, implementamos un **pipeline de CI/CD** para una aplicación web en **Python (Flask)**, totalmente **contenedorizada** y desplegada en **Azure Kubernetes Service (AKS)**. El flujo general es:
 
 1. El código fuente vive en un **repositorio GitHub**.
 2. Un **servidor Jenkins**, alojado en una **máquina virtual de Azure**, detecta cada *push* y:

@@ -1,3 +1,7 @@
+---
+title: Como crear una VM en Azure
+description: Guía paso a paso para crear una máquina virtual en Azure, configurar sus detalles básicos, seleccionar el sistema operativo y abrir puertos necesarios.
+---
 # Pasos para la creación de una VM en **Azure**
 
 ---
@@ -89,6 +93,7 @@ Una vez se creo la Máquina virtual se debe habilitar el puerto 8080, esto con e
 ![Revisión y Creación](https://github.com/user-attachments/assets/625d415b-cc38-474c-b9d4-6e42721dfa8a)
 ![Reglas de Red](https://github.com/user-attachments/assets/238b1e3a-615e-4f43-b653-3c820b46335b)
 ![Agregar puerto de entrada](https://github.com/user-attachments/assets/11a145e5-3903-4386-b6f2-03895dc0a1f1)
+
 
 
 

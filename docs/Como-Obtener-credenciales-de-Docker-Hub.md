@@ -1,3 +1,7 @@
+---
+title: Como Obtener Credenciales de Docker Hub
+description: Guía paso a paso para crear y usar un Personal Access Token en Docker Hub para integraciones CI/CD como Jenkins.
+---
 # Crear Credenciales en Docker Hub (Personal Access Token)
 
 1. **Ingresar a Docker Hub:**

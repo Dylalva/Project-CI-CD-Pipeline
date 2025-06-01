@@ -1,3 +1,7 @@
+---
+title: Instalación y Configuración de Jenkins
+description: Guía paso a paso para instalar Jenkins en una VM, configurarlo con Docker, kubectl y Azure CLI, y preparar un pipeline CI/CD.
+---
 # 📋 Requisitos:
 
 Antes de empezar, asegúrate de tener:
@@ -208,3 +212,4 @@ Y **Listo** ya tienes tu **pipeline**!!
 ![Screenshot 2025-05-26 005743](https://github.com/user-attachments/assets/ef62b3b1-59e2-4314-9e4f-5fc0a38d9281)
 
 ![Screenshot 2025-05-26 011334](https://github.com/user-attachments/assets/3745fe3b-b6ef-4b81-a593-f5bcfecc2cfa)
+
