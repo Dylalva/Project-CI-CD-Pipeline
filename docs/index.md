@@ -41,7 +41,7 @@ Antes de empezar, asegúrate de tener:
 1. **Azure Subscription** activa.
 2. Una **VM en Azure** con Jenkins instalado y accesible.
 3. **Cuenta en Docker Hub** (o ACR) y credenciales disponibles.
-4. **Cluster AKS** creado, con `kubectl` configurado en tu entorno local o en la VM de Jenkins.
+4. **Cluster AKS** creado, con `kubectl` configurado en la VM de Jenkins.
 5. **Azure CLI** y **kubectl** instalados donde vayamos a ejecutar comandos.
 6. Acceso al **repositorio GitHub** con tu código Flask y `Dockerfile` listo.
 
@@ -74,7 +74,7 @@ Antes de empezar, asegúrate de tener:
    #### Instalación y creación de Jenkins en la VM de **Azure**
    [Instalación y Configuración de Jenkins](Instalación-y-Configuración-de-Jenkins)
 
-   * Instala los plugins de **Docker**, **Git** y **Kubernetes CLI**.
+   * Instala los plugins de **Docker**, **Git** y **Azure CLI**.
    * Crea **Credentials** para:
 
      * **Docker Hub** (usuario/password).
@@ -86,7 +86,13 @@ Antes de empezar, asegúrate de tener:
    * **Freestyle Job** o **Pipeline Job** con un `Jenkinsfile`.
    > En este Repositorio se encuentra un archivo `Jenkinsfile`.
 
-4. ### Prueba Final
+   > Nota: [Vincular Repositorio con Jenkins](Vincular-Repositorio-con-Jenkins)
+
+
+4. ### Crear Kubernetes Cluster
+   * [Crear Kubernetes Cluster en Azure](Creación-de-Kubernetes-Cluster-en-Azure)
+
+5. ### Prueba Final
 
    * Haz un **PUSH** a la rama principal de tu repo GitHub.
    * Observa en Jenkins cómo se dispara el pipeline.

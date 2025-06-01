@@ -24,10 +24,7 @@
 
 ## Anexos
 
-![Screenshot2025-05-26104134](https://github.com/user-attachments/assets/a20a5719-da09-4010-8c64-531dc9eb6d76)
-
-![Screenshot2025-05-26104145](https://github.com/user-attachments/assets/29c8db77-650a-4a24-b86f-07a9406b7c4f)
-
-![Screenshot 2025-05-26 104354](https://github.com/user-attachments/assets/0234d807-aa14-456c-8230-26915bef7e74)
-
-![Screenshot 2025-05-26 104402](https://github.com/user-attachments/assets/487e97d4-90a7-4390-a14a-29157531a4c1)
+![setting](https://github.com/user-attachments/assets/ff6d8aa3-adb2-4779-ad8a-766cc1c46719)
+![setting](https://github.com/user-attachments/assets/33f4660f-be35-48be-8d28-998aecf4b30d)
+![setting](https://github.com/user-attachments/assets/ea448061-49ad-49db-bb05-9fd055f60f2c)
+![vinvular](https://github.com/user-attachments/assets/6b932c98-0060-41c3-a48b-7d80c5cc711d)

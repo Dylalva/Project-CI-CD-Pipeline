@@ -33,11 +33,8 @@
    * En lugar de tu contraseña, usa este token para autenticarte en Docker CLI o integrarlo en herramientas como Jenkins.
 
 ## Anexos
-![Screenshot 2025-05-26 103149](https://github.com/user-attachments/assets/18b27d1a-c505-49c8-8508-182313f7aae5)
 
-
-![Screenshot 2025-05-26 103223](https://github.com/user-attachments/assets/4c4b9f86-024b-4936-8635-43c656c23204)
-
-![Screenshot 2025-05-26 103238](https://github.com/user-attachments/assets/a60d366c-9c37-40f5-a7ce-df5df451afe5)
-
-![Screenshot 2025-05-26 103306](https://github.com/user-attachments/assets/e654dc96-f35e-4753-8135-03744d824389)
+![Screenshot 2025-05-26 103149](https://github.com/user-attachments/assets/aee70388-6d94-4636-93e9-a34d2b0c5547)
+![Screenshot 2025-05-26 103223](https://github.com/user-attachments/assets/1051d264-ab14-4640-93d3-43bea0c28c7b)
+![Screenshot 2025-05-26 103238](https://github.com/user-attachments/assets/a5a5ad24-f0c8-4a4d-b1c6-dae0bcd8c1aa)
+![Screenshot 2025-05-26 103306](https://github.com/user-attachments/assets/30ccfd37-a39a-4aae-b809-5c8dccc7ab8b)
