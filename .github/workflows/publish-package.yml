@@ -22,8 +22,10 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/my-python-app:latest .
+        OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/$OWNER_LOWER/app-ci-cd:latest .
 
     - name: Push Docker image
       run: |
-        docker push ghcr.io/${{ github.repository_owner }}/my-python-app:latest
+        OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+        docker push ghcr.io/$OWNER_LOWER/app-ci-cd:latest
