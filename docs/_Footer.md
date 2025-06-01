@@ -1,6 +1,6 @@
 ---
 
-© 2025 Dylan Elizondo, Luis David Salgado, Andrea Orozco, Kate Guillen.
+© 2025 Dylan Elizondo.
 
 ---
 
