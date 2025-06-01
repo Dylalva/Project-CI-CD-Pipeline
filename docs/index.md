@@ -6,7 +6,7 @@ description: Página principal de la documentación en español del proyecto CI/
 
 Por favor, selecciona el idioma en el que deseas consultar la documentación / Please select the language in which you want to view the documentation:
 
-- [Español](./Home_ES) 
+- [Español](Home_ES) 
  
-- [English](./Home_EN)
+- [English](Home_EN)
 
