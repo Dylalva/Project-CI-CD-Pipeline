@@ -2,6 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
+    paths:
+      - app.py
     branches:
       - master
 
@@ -22,17 +24,10 @@ jobs:
 
     - name: Build Docker image
       run: |
-        # Convert owner and repo to lowercase
-        OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
-        REPO=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')
-        IMAGE_TAG="ghcr.io/$OWNER/$REPO:latest"
-        echo "Building image $IMAGE_TAG"
-        docker build -t $IMAGE_TAG .
+        OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/$OWNER_LOWER/app-ci-cd:latest .
 
     - name: Push Docker image
       run: |
-        OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
-        REPO=$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')
-        IMAGE_TAG="ghcr.io/$OWNER/$REPO:latest"
-        echo "Pushing image $IMAGE_TAG"
-        docker push $IMAGE_TAG
+        OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+        docker push ghcr.io/$OWNER_LOWER/app-ci-cd:latest
