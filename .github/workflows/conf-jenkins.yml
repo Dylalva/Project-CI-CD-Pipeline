@@ -1,4 +1,60 @@
-name: conf-jenkins.yml
+name: Instalar y configurar Jenkins completo
+
 on:
+  workflow_dispatch:
 
 jobs:
+  deploy_jenkins:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Instalar Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible sshpass
+
+      - name: Ejecutar Ansible para instalar Jenkins y crear usuario admin
+        run: |
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      - name: Esperar a que Jenkins esté listo
+        run: |
+          until curl -s http://$JENKINS_URL/login > /dev/null; do
+            echo "Esperando Jenkins..."
+            sleep 10
+          done
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Descargar Jenkins CLI
+        run: wget http://$JENKINS_URL/jnlpJars/jenkins-cli.jar
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Instalar plugins necesarios
+        run: |
+          java -jar jenkins-cli.jar -s http://$JENKINS_URL -auth admin:admin_password install-plugin docker-plugin azure-credentials azure-cli -deploy
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Agregar credenciales Docker Hub
+        run: |
+          curl -X POST http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials \
+          --user admin:admin_password \
+          -H "Content-Type: application/json" \
+          -d '{"credentials": {"scope": "GLOBAL", "id": "dockerhub-cred", "username": "dylalva", "password": "'${{ secrets.DOCKER_PASSWORD }}'", "description": "Docker Hub Credentials", "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"}}'
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Crear pipeline Jenkins
+        run: |
+          curl -X POST http://$JENKINS_URL/createItem?name=ci-cd-kube \
+          --user admin:admin_password \
+          -H "Content-Type: application/xml" \
+          --data-binary @infrastructure/job-config.xml
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
