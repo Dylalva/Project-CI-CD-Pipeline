@@ -1,0 +1,76 @@
+---
+- name: Configurar Jenkins en VM Azure
+  hosts: jenkins_vm
+  become: true
+  vars:
+    docker_jenkins_home: jenkins_home
+  tasks:
+    - name: Actualizar repositorios
+      apt:
+        update_cache: yes
+
+    - name: Instalar Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Asegurar que Docker esté iniciado y habilitado
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Descargar imagen Jenkins
+      docker_image:
+        name: jenkins/jenkins
+        tag: lts
+        source: pull
+
+    - name: Ejecutar contenedor Jenkins
+      docker_container:
+        name: jenkins
+        image: jenkins/jenkins:lts
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+        volumes:
+          - "{{ docker_jenkins_home }}:/var/jenkins_home"
+          - "/var/run/docker.sock:/var/run/docker.sock"
+
+    - name: Instalar kubectl dentro del contenedor Jenkins
+      shell: |
+        docker exec -u 0 jenkins bash -c "
+          curl -LO https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
+          chmod +x kubectl && \
+          mv kubectl /usr/local/bin/
+        "
+      args:
+        executable: /bin/bash
+
+    - name: Instalar Azure CLI dentro del contenedor Jenkins
+      shell: |
+        docker exec -u 0 jenkins bash -c "
+          curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+        "
+      args:
+        executable: /bin/bash
+
+    - name: Instalar Docker dentro del contenedor Jenkins
+      shell: |
+        docker exec -u 0 jenkins bash -c "
+          apt-get update && apt-get install -y docker.io
+        "
+      args:
+        executable: /bin/bash
+
+    - name: Verificar que contenedor Jenkins esté corriendo
+      shell: docker ps -f name=jenkins --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: jenkins_container
+      failed_when: "'jenkins' not in jenkins_container.stdout"
+      changed_when: false
+
+    - name: Mostrar mensaje de éxito
+      debug:
+        msg: "Jenkins configurado y corriendo en la VM!"
