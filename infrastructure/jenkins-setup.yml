@@ -31,6 +31,7 @@
         name: jenkins
         image: jenkins/jenkins:lts
         state: started
+        recreate: yes
         restart_policy: unless-stopped
         ports:
           - "8080:8080"
