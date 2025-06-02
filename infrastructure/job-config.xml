@@ -4,7 +4,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.triggers.SCMTrigger>
-      <spec>@hourly</spec> <!-- Poll SCM cada hora, cambia esto o quita si no quieres -->
+      <spec>@hourly</spec> <!-- Cambia si quieres otro trigger -->
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
   </properties>
@@ -14,14 +14,11 @@
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
           <url>https://github.com/Dylalva/Project-CI-CD-Pipeline.git</url>
-          <!--
-          <credentialsId>dockerhub-cred</credentialsId>
-          -->
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>*/master</name> <!-- Cambia la rama si quieres -->
+          <name>*/master</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
       <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
