@@ -1,3 +1,10 @@
+name: Deploy Azure VM with Terraform
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
