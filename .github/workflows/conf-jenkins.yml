@@ -45,18 +45,22 @@ jobs:
             --user admin:${{ secrets.JENKINS_API_TOKEN }} \
             -H "${{ steps.get_crumb.outputs.crumb }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "credentials": {
-                "scope": "GLOBAL",
-                "id": "dockerhub-cred",
-                "username": "dylalva",
-                "password": "'"${{ secrets.DOCKER_PASSWORD }}"'",
-                "description": "Docker Hub Credentials",
-                "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-              }
-            }'
+            -d @- <<EOF
+      {
+        "": "0",
+        "credentials": {
+          "scope": "GLOBAL",
+          "id": "dockerhub-cred",
+          "username": "dylalva",
+          "password": "${{ secrets.DOCKER_PASSWORD }}",
+          "description": "Docker Hub Credentials",
+          "\$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+        }
+      }
+      EOF
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
 
       - name: Agregar credenciales Azure Service Principal
         run: |
