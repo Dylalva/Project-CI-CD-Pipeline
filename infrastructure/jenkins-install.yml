@@ -1,46 +1,42 @@
----
-- name: Instalar y configurar Jenkins en VM
+- name: Instalar Docker y configurar Jenkins en contenedor Docker
   hosts: jenkins_vm
   become: true
 
   tasks:
-    - name: Instalar Java (requisito Jenkins)
+    - name: Instalar Docker
       apt:
-        name: openjdk-11-jdk
+        name: docker.io
         state: present
         update_cache: yes
 
-    - name: Añadir repositorio Jenkins y clave
-      apt_key:
-        url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
-        state: present
-
-    - apt_repository:
-        repo: deb https://pkg.jenkins.io/debian-stable binary/
-        state: present
-
-    - name: Instalar Jenkins
-      apt:
-        name: jenkins
-        state: present
-        update_cache: yes
-
-    - name: Asegurar Jenkins iniciado y habilitado
+    - name: Iniciar y habilitar servicio Docker
       service:
-        name: jenkins
+        name: docker
         state: started
         enabled: yes
 
-    - name: Crear directorio init.groovy.d
-      file:
-        path: /var/lib/jenkins/init.groovy.d
-        state: directory
-        owner: jenkins
-        group: jenkins
+    - name: Descargar imagen oficial de Jenkins LTS
+      docker_image:
+        name: jenkins/jenkins
+        tag: lts
+        source: pull
 
-    - name: Copiar script para crear usuario admin
+    - name: Ejecutar contenedor Jenkins
+      docker_container:
+        name: jenkins
+        image: jenkins/jenkins:lts
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+        volumes:
+          - jenkins_home:/var/jenkins_home
+          - /var/run/docker.sock:/var/run/docker.sock
+
+    - name: Crear script Groovy para crear usuario admin en VM temporalmente
       copy:
-        dest: /var/lib/jenkins/init.groovy.d/basic-security.groovy
+        dest: /tmp/basic-security.groovy
         content: |
           import jenkins.model.*
           import hudson.security.*
@@ -56,11 +52,11 @@
           instance.setAuthorizationStrategy(strategy)
 
           instance.save()
-        owner: jenkins
-        group: jenkins
-        mode: '0644'
 
-    - name: Reiniciar Jenkins para aplicar usuario admin
-      systemd:
+    - name: Copiar script Groovy dentro del contenedor Jenkins
+      shell: docker cp /tmp/basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
+
+    - name: Reiniciar contenedor Jenkins para aplicar configuración
+      docker_container:
         name: jenkins
         state: restarted
