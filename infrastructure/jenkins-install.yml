@@ -1,5 +1,5 @@
 ---
-- name: Instalar Docker y configurar Jenkins en contenedor Docker
+- name: Configurar Jenkins en contenedor Docker existente
   hosts: jenkins_vm
   become: true
 
@@ -10,30 +10,11 @@
         state: present
         update_cache: yes
 
-    - name: Iniciar y habilitar servicio Docker
+    - name: Asegurar que Docker esté iniciado y habilitado
       service:
         name: docker
         state: started
         enabled: yes
-
-    - name: Descargar imagen oficial de Jenkins LTS
-      docker_image:
-        name: jenkins/jenkins
-        tag: lts
-        source: pull
-
-    - name: Ejecutar contenedor Jenkins
-      docker_container:
-        name: jenkins
-        image: jenkins/jenkins:lts
-        state: started
-        restart_policy: unless-stopped
-        ports:
-          - "8080:8080"
-          - "50000:50000"
-        volumes:
-          - jenkins_home:/var/jenkins_home
-          - /var/run/docker.sock:/var/run/docker.sock
 
     - name: Crear script Groovy para crear usuario admin en VM temporalmente
       copy:
@@ -45,7 +26,7 @@
           def instance = Jenkins.getInstance()
 
           def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-          hudsonRealm.createAccount("admin", "admin_password")
+          hudsonRealm.createAccount("admin", "admin_password")  # Cambia la contraseña por una segura
           instance.setSecurityRealm(hudsonRealm)
 
           def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
@@ -65,4 +46,3 @@
         name: jenkins
         state: started
         recreate: yes
-
