@@ -43,7 +43,6 @@ jobs:
         run: |
           curl --fail -X POST "http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials" \
           --user admin:${{ secrets.JENKINS_API_TOKEN }} \
-          -H "${{ steps.get_crumb.outputs.crumb }}" \
           -H "Content-Type: application/json" \
           -d '{
             "": "0",
