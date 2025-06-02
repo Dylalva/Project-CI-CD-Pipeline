@@ -89,7 +89,7 @@ resource "azurerm_linux_virtual_machine" "jenkins_vm" {
     username   = "azureuser"
     public_key = file("${path.module}/VM-Jenkins_key.pub")
   }
-  zones = ["1"]
+  zone = "1"
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
