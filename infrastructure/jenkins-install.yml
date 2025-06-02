@@ -1,3 +1,4 @@
+---
 - name: Instalar Docker y configurar Jenkins en contenedor Docker
   hosts: jenkins_vm
   become: true
@@ -52,6 +53,9 @@
           instance.setAuthorizationStrategy(strategy)
 
           instance.save()
+
+    - name: Crear carpeta init.groovy.d dentro del contenedor Jenkins
+      shell: docker exec jenkins mkdir -p /var/jenkins_home/init.groovy.d
 
     - name: Copiar script Groovy dentro del contenedor Jenkins
       shell: docker cp /tmp/basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
