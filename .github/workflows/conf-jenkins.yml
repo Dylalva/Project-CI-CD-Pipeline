@@ -46,21 +46,20 @@ jobs:
             -H "${{ steps.get_crumb.outputs.crumb }}" \
             -H "Content-Type: application/json" \
             -d @- <<EOF
-      {
-        "": "0",
-        "credentials": {
-          "scope": "GLOBAL",
-          "id": "dockerhub-cred",
-          "username": "dylalva",
-          "password": "${{ secrets.DOCKER_PASSWORD }}",
-          "description": "Docker Hub Credentials",
-          "\$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-        }
-      }
-      EOF
+          {
+            "": "0",
+            "credentials": {
+              "scope": "GLOBAL",
+              "id": "dockerhub-cred",
+              "username": "dylalva",
+              "password": "${{ secrets.DOCKER_PASSWORD }}",
+              "description": "Docker Hub Credentials",
+              "\$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+            }
+          }
+          EOF
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
 
       - name: Agregar credenciales Azure Service Principal
         run: |
@@ -68,18 +67,20 @@ jobs:
             --user admin:${{ secrets.JENKINS_API_TOKEN }} \
             -H "${{ steps.get_crumb.outputs.crumb }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "credentials": {
-                "scope": "GLOBAL",
-                "id": "azure-service-principal",
-                "subscriptionId": "'"${{ secrets.AZURE_SUBSCRIPTION_ID }}"'",
-                "clientId": "'"${{ secrets.AZURE_CLIENT_ID }}"'",
-                "clientSecret": "'"${{ secrets.AZURE_CLIENT_SECRET }}"'",
-                "tenant": "'"${{ secrets.AZURE_TENANT_ID }}"'",
-                "description": "Azure Service Principal Credentials",
-                "$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
-              }
-            }'
+            -d @- <<EOF
+          {
+            "credentials": {
+              "scope": "GLOBAL",
+              "id": "azure-service-principal",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "tenant": "${{ secrets.AZURE_TENANT_ID }}",
+              "description": "Azure Service Principal Credentials",
+              "\$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
+            }
+          }
+          EOF
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
 
