@@ -42,7 +42,4 @@
       shell: docker cp /tmp/basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
 
     - name: Reiniciar contenedor Jenkins para aplicar configuración
-      docker_container:
-        name: jenkins
-        state: started
-        recreate: yes
+      shell: docker restart jenkins
