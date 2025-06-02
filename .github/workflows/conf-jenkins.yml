@@ -41,11 +41,10 @@ jobs:
 
       - name: Agregar credenciales Docker Hub
         run: |
-          curl --fail -X POST "http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials" \
+         curl --fail -X POST "http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials" \
           --user admin:${{ secrets.JENKINS_API_TOKEN }} \
           -H "Content-Type: application/json" \
           -d '{
-            "": "0",
             "credentials": {
               "scope": "GLOBAL",
               "id": "dockerhub-cred",
@@ -55,6 +54,7 @@ jobs:
               "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
             }
           }'
+
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
 
