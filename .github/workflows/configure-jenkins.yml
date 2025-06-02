@@ -24,4 +24,4 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i hosts.ini jenkins-setup.yml
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml

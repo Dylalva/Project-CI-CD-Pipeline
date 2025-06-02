@@ -1,9 +1,6 @@
 name: Deploy Azure VM with Terraform
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
@@ -18,11 +15,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Terraform Init
-        working-directory: ./infraestructure
+        working-directory: ./infrastructure
         run: terraform init
 
       - name: Terraform Apply
-        working-directory: ./infraestructure
+        working-directory: ./infrastructure
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
