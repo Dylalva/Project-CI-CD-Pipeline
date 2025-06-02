@@ -15,6 +15,12 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass
 
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Ejecutar Ansible para instalar Jenkins y crear usuario admin
         run: |
           ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
