@@ -47,7 +47,6 @@ jobs:
             -H "Content-Type: application/json" \
             -d @- <<EOF
           {
-            "": "0",
             "credentials": {
               "scope": "GLOBAL",
               "id": "dockerhub-cred",
