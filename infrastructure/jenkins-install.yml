@@ -1,0 +1,66 @@
+---
+- name: Instalar y configurar Jenkins en VM
+  hosts: jenkins_vm
+  become: true
+
+  tasks:
+    - name: Instalar Java (requisito Jenkins)
+      apt:
+        name: openjdk-11-jdk
+        state: present
+        update_cache: yes
+
+    - name: Añadir repositorio Jenkins y clave
+      apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+        state: present
+
+    - apt_repository:
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Instalar Jenkins
+      apt:
+        name: jenkins
+        state: present
+        update_cache: yes
+
+    - name: Asegurar Jenkins iniciado y habilitado
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Crear directorio init.groovy.d
+      file:
+        path: /var/lib/jenkins/init.groovy.d
+        state: directory
+        owner: jenkins
+        group: jenkins
+
+    - name: Copiar script para crear usuario admin
+      copy:
+        dest: /var/lib/jenkins/init.groovy.d/basic-security.groovy
+        content: |
+          import jenkins.model.*
+          import hudson.security.*
+
+          def instance = Jenkins.getInstance()
+
+          def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+          hudsonRealm.createAccount("admin", "admin_password")
+          instance.setSecurityRealm(hudsonRealm)
+
+          def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+          strategy.setAllowAnonymousRead(false)
+          instance.setAuthorizationStrategy(strategy)
+
+          instance.save()
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+
+    - name: Reiniciar Jenkins para aplicar usuario admin
+      systemd:
+        name: jenkins
+        state: restarted
