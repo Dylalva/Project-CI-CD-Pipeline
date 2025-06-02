@@ -34,7 +34,7 @@ jobs:
       - name: Obtener Crumb de Jenkins (CSRF token)
         id: get_crumb
         run: |
-          crumb=$(curl -s --user admin:${{ secrets.JENKINS_API_TOKEN }} http://$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb))
+          crumb=$(curl -s --user admin:${{ secrets.JENKINS_API_TOKEN }} "http://$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,':',//crumb)")
           echo "::set-output name=crumb::$crumb"
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
