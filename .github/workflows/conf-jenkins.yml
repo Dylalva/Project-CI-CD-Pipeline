@@ -22,6 +22,32 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass curl openjdk-11-jdk
 
+      - name: Ejecutar playbook para configurar Jenkins (copiar script y reiniciar contenedor)
+        run: |
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      - name: Esperar a que Jenkins esté listo
+        run: |
+          until curl -s http://$JENKINS_URL/login > /dev/null; do
+            echo "Esperando Jenkins..."
+            sleep 10
+          done
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Descargar Jenkins CLI
+        run: wget http://$JENKINS_URL/jnlpJars/jenkins-cli.jar
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
+      - name: Instalar plugins necesarios
+        run: |
+          java -jar jenkins-cli.jar -s http://$JENKINS_URL -auth admin:admin_password install-plugin docker-plugin docker-workflow azure-credentials azure-cli -deploy
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+
       - name: Esperar a que Jenkins esté listo
         run: |
           until curl -s -f http://$JENKINS_URL/login > /dev/null; do
