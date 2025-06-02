@@ -7,12 +7,14 @@ import requests
 load_dotenv()
 
 firebase_config = {
+  "apiKey": "AIzaSyDGumoDc1Gr0iNcOjFFpwTvU2WUXWV0LLI",
   "databaseURL": "https://ci-cd-app-6589f-default-rtdb.firebaseio.com",
   "projectId": "ci-cd-app-6589f",
   "storageBucket": "ci-cd-app-6589f.appspot.com",
   "messagingSenderId": "518988882520",
   "appId": "1:518988882520:web:0ffbe42be85343cce9a02d",
-  "measurementId": "G-JE3KWE671Z"
+  "measurementId": "G-JE3KWE671Z",
+  "authDomain": "ci-cd-app-6589f.firebaseapp.com"
 }
 
 firebase = pyrebase.initialize_app(firebase_config)

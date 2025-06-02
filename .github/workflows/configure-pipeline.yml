@@ -1,0 +1,38 @@
+name: Configurar pipeline en Jenkins
+
+on: workflow_dispatch
+
+jobs:
+  setup_jenkins:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Wait for Jenkins to be ready
+        run: |
+          until curl -s http://$JENKINS_URL/login > /dev/null; do
+            echo "Waiting for Jenkins..."
+            sleep 10
+          done
+
+      - name: Download Jenkins CLI
+        run: wget http://$JENKINS_URL/jnlpJars/jenkins-cli.jar
+
+      - name: Install Plugins
+        run: |
+          java -jar jenkins-cli.jar -s http://$JENKINS_URL -auth $JENKINS_USER:$JENKINS_TOKEN install-plugin docker-plugin azure-credentials azure-cli -deploy
+
+      - name: Add Docker Hub credentials
+        run: |
+          curl -X POST http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials \
+          --user $JENKINS_USER:$JENKINS_TOKEN \
+          -H "Content-Type: application/json" \
+          -d '{"credentials": {"scope": "GLOBAL", "id": "dockerhub-cred", "username": "dylalva", "password": "'${{ secrets.DOCKER_PASSWORD }}'", "description": "Docker Hub Credentials", "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"}}'
+
+      - name: Create Pipeline job
+        run: |
+          curl -X POST http://$JENKINS_URL/createItem?name=ci-cd-kube \
+          --user $JENKINS_USER:$JENKINS_TOKEN \
+          -H "Content-Type: application/xml" \
+          --data-binary @./infrastructure/job-config.xml
