@@ -9,7 +9,7 @@
 
     # Credenciales estáticas (el Groovy del primer playbook ya creó user 'admin' con esta password)
     jenkins_admin_user: admin
-    jenkins_admin_password: 118cd20a1d5993521d901927175a19d678
+    jenkins_admin_password: admin_password
 
     # Nombre del job/pipeline
     job_name: ci-cd-kube
