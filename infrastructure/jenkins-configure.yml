@@ -22,6 +22,11 @@
       - azure-cli
 
   tasks:
+    - name: Instalar OpenJDK 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+        update_cache: yes
     ##################################################################
     # 1) Esperar a que Jenkins esté UP y responda en /login
     ##################################################################
