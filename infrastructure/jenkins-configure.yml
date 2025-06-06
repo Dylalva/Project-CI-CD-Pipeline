@@ -74,6 +74,20 @@
       delay: 10
 
     ##################################################################
+    # 8) Crear el pipeline desde job-config.xml
+    ##################################################################
+    - name: Crear pipeline '{{ job_name }}' desde XML
+      uri:
+        url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
+        method: POST
+        user: "{{ jenkins_admin_user }}"
+        password: "{{ jenkins_admin_password }}"
+        headers:
+          Content-Type: "application/xml"
+          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
+        body: "{{ lookup('file', 'infrastructure/job-config.xml') }}"
+
+    ##################################################################
     # 5) Obtener CSRF crumb para llamadas seguras a la API
     ##################################################################
     - name: Obtener CSRF crumb (API token)
@@ -136,20 +150,6 @@
               "$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
             }
           }
-
-    ##################################################################
-    # 8) Crear el pipeline desde job-config.xml
-    ##################################################################
-    - name: Crear pipeline '{{ job_name }}' desde XML
-      uri:
-        url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: "application/xml"
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
-        body: "{{ lookup('file', 'infrastructure/job-config.xml') }}"
 
     ##################################################################
     # 9) Mensaje final de éxito
