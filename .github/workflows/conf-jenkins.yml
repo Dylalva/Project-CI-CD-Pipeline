@@ -20,7 +20,7 @@ jobs:
       - name: Instalar Ansible y Docker en el runner
         run: |
           sudo apt update
-          sudo apt install -y ansible sshpass curl openjdk-11-jdk docker.io
+          sudo apt install -y ansible sshpass curl openjdk-11-jdk
 
       ##############################################################
       # 1) Ejecutar playbook que levanta Jenkins + Groovy de seguridad
