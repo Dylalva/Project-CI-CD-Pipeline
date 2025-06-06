@@ -36,10 +36,10 @@
         delay: 10
         timeout: 120
 
-    - name: Copiar script de seguridad para crear admin
-      copy:
-        src: basic-security.groovy
-        dest: /var/lib/docker/volumes/{{ docker_jenkins_home }}/_data/init.groovy.d/basic-security.groovy
+    - name: Copiar script de seguridad dentro del contenedor Jenkins
+      command: >
+        docker cp basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
+
 
     - name: Reiniciar Jenkins para aplicar script Groovy
       docker_container:
