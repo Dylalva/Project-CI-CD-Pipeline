@@ -85,32 +85,33 @@
       args:
         executable: /bin/bash
 
-    - name: Crear directorio init.groovy.d dentro del contenedor Jenkins
-      shell: |
-        docker exec -u 0 {{ jenkins_container_name }} bash -c "mkdir -p /var/jenkins_home/init.groovy.d"
-      args:
-        executable: /bin/bash
+    - name: Crear carpeta init.groovy.d en el volumen de Jenkins (host)
+      file:
+        path: "{{ host_jenkins_data_dir }}/init.groovy.d"
+        state: directory
+        mode: "0755"
 
-    - name: Inyectar inline el script Groovy para crear admin
-      shell: |
-        docker exec -i {{ jenkins_container_name }} bash -c 'cat > /var/jenkins_home/init.groovy.d/basic-security.groovy << "EOF"
-        import jenkins.model.*
-        import hudson.security.*
-        
-        def instance = Jenkins.getInstance()
-        
-        def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-        hudsonRealm.createAccount("admin", "admin_password")
-        instance.setSecurityRealm(hudsonRealm)
-        
-        def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
-        strategy.setAllowAnonymousRead(false)
-        instance.setAuthorizationStrategy(strategy)
-        
-        instance.save()
-        EOF'
-      args:
-        executable: /bin/bash
+    - name: Crear directamente el archivo basic-security.groovy en el host
+      copy:
+        content: |
+          import jenkins.model.*
+          import hudson.security.*
+
+          def instance = Jenkins.getInstance()
+
+          def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+          hudsonRealm.createAccount("admin", "admin_password")
+          instance.setSecurityRealm(hudsonRealm)
+
+          def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+          strategy.setAllowAnonymousRead(false)
+          instance.setAuthorizationStrategy(strategy)
+
+          instance.save()
+        dest: "{{ host_jenkins_data_dir }}/init.groovy.d/basic-security.groovy"
+        mode: "0644"
+
+
     - name: Reiniciar contenedor Jenkins para que ejecute el Groovy de seguridad
       docker_container:
         name: "{{ jenkins_container_name }}"
