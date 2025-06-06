@@ -1,5 +1,4 @@
----
-- name: Levantar y configurar Jenkins (Groovy de seguridad + herramientas)
+- name: Levantar y preparar Jenkins en VM Azure
   hosts: jenkins_vm
   become: true
 
@@ -8,11 +7,23 @@
     jenkins_container_name: jenkins
 
   tasks:
-    - name: Actualizar repositorios APT
+    - name: Actualizar repositorios APT en la VM
       apt:
         update_cache: yes
 
-    - name: Instalar Docker y utilidades básicas
+    ##################################################################
+    # Desinstalar containerd si está presente, para evitar conflicto
+    ##################################################################
+    - name: Remover containerd (evitar conflicto con containerd.io)
+      apt:
+        name: containerd
+        state: absent
+        purge: yes
+
+    ##################################################################
+    # 1) Instalar Docker y utilidades en la VM
+    ##################################################################
+    - name: Instalar Docker, curl, wget y git en la VM
       apt:
         name:
           - docker.io
@@ -21,23 +32,32 @@
           - git
         state: present
 
-    - name: Asegurar que Docker esté iniciado y habilitado
+    - name: Asegurar que Docker esté iniciado y habilitado en la VM
       service:
         name: docker
         state: started
         enabled: yes
 
+    ##################################################################
+    # 2) Crear volumen Docker para jenkins_home (si no existía)
+    ##################################################################
     - name: Crear volumen Docker 'jenkins_home'
       command: docker volume create {{ docker_jenkins_home }}
       register: volume_created
       changed_when: "'{{ docker_jenkins_home }}' in volume_created.stdout"
 
+    ##################################################################
+    # 3) Descargar imagen oficial de Jenkins LTS en la VM
+    ##################################################################
     - name: Descargar imagen Jenkins LTS
       docker_image:
         name: jenkins/jenkins
         tag: lts
         source: pull
 
+    ##################################################################
+    # 4) Levantar contenedor Jenkins (sin configuración de seguridad)
+    ##################################################################
     - name: Iniciar contenedor Jenkins
       docker_container:
         name: "{{ jenkins_container_name }}"
@@ -52,10 +72,26 @@
           - "{{ docker_jenkins_home }}:/var/jenkins_home"
           - "/var/run/docker.sock:/var/run/docker.sock"
 
+    ##################################################################
+    # 5) Instalar dentro del contenedor:
+    #    - curl
+    #    - kubectl
+    #    - Azure CLI
+    #    - Docker
+    ##################################################################
+
+    - name: Instalar curl dentro del contenedor Jenkins (necesario para bajar kubectl)
+      shell: |
+        docker exec -u 0 {{ jenkins_container_name }} bash -c "
+          apt-get update && apt-get install -y curl
+        "
+      args:
+        executable: /bin/bash
+
     - name: Instalar kubectl dentro del contenedor Jenkins
       shell: |
         docker exec -u 0 {{ jenkins_container_name }} bash -c "
-          curl -LO https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
+          curl -LO https://dl.k8s.io/release/\$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/
         "
@@ -78,32 +114,41 @@
       args:
         executable: /bin/bash
 
-    - name: Esperar a que Jenkins inicialice (dir init.groovy.d)
+    ##################################################################
+    # 6) Esperar a que Jenkins fini​onice (cree init.groovy.d)
+    ##################################################################
+    - name: Esperar a que Jenkins inicialice (puerto 8080 abierto)
       wait_for:
         port: 8080
         delay: 10
         timeout: 120
 
-    - name: Copiar script Groovy de seguridad dentro del contenedor Jenkins
-      # Con chdir: playbook_dir garantizamos que Ansible busque basic-security.groovy
-      # en la misma carpeta que este playbook.
+    ##################################################################
+    # 7) Copiar el Groovy de seguridad dentro del contenedor
+    ##################################################################
+    - name: Copiar basic-security.groovy dentro del contenedor Jenkins
       command: >
         docker cp basic-security.groovy {{ jenkins_container_name }}:/var/jenkins_home/init.groovy.d/basic-security.groovy
       args:
-        chdir: "{{ playbook_dir }}"
+        chdir: "{{ playbook_dir }}"     # para que busque basic-security.groovy junto a este playbook
 
-    - name: Reiniciar contenedor Jenkins para aplicar Groovy
+    ##################################################################
+    # 8) Reiniciar Jenkins para que ejecute el script Groovy
+    ##################################################################
+    - name: Reiniciar contenedor Jenkins para aplicar Groovy de seguridad
       docker_container:
         name: "{{ jenkins_container_name }}"
         state: restarted
 
+    ##################################################################
+    # 9) Verificar que el contenedor siga corriendo
+    ##################################################################
     - name: Verificar que contenedor Jenkins esté corriendo
       shell: docker ps -f name={{ jenkins_container_name }} --format "{{ '{{' }}.Names{{ '}}' }}"
       register: jenkins_container
       failed_when: "'{{ jenkins_container_name }}' not in jenkins_container.stdout"
       changed_when: false
 
-    - name: Jenkins arrancó y Groovy ejecutado ✔
+    - name: Jenkins arrancó con Groovy de seguridad ✔
       debug:
-        msg: "✅ Jenkins se volvió a iniciar con Groovy de seguridad. Ahora ya hay usuario 'admin'."
-
+        msg: "✅ Jenkins se reinició, se instaló curl, kubectl, az cli y docker en el contenedor, y se aplicó basic-security.groovy."
