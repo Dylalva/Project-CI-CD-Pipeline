@@ -1,147 +1,45 @@
 ---
-- name: Configurar Jenkins completo en VM Azure
+- name: Configurar Jenkins en contenedor Docker existente
   hosts: jenkins_vm
   become: true
-  vars:
-    docker_jenkins_home: jenkins_home
-    jenkins_url: http://localhost:8080
-    jenkins_admin_user: admin
-    jenkins_admin_password: admin_password
-    job_name: ci-cd-kube
-    jenkins_plugins:
-      - docker-plugin
-      - docker-workflow
-      - azure-credentials
-      - azure-cli
 
   tasks:
-    - name: Actualizar repositorios
+    - name: Instalar Docker
       apt:
+        name: docker.io
+        state: present
         update_cache: yes
 
-    - name: Instalar Docker y Java
-      apt:
-        name: ['docker.io', 'openjdk-11-jdk', 'curl', 'wget']
-        state: present
-
-    - name: Asegurar que Docker esté iniciado
+    - name: Asegurar que Docker esté iniciado y habilitado
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Esperar a que Jenkins inicialice
-      wait_for:
-        port: 8080
-        delay: 10
-        timeout: 120
+    - name: Crear script Groovy para crear usuario admin en VM temporalmente
+      copy:
+        dest: /tmp/basic-security.groovy
+        content: |
+          import jenkins.model.*
+          import hudson.security.*
 
-    - name: Copiar script de seguridad dentro del contenedor Jenkins
-      command: >
-        docker cp basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
+          def instance = Jenkins.getInstance()
 
+          def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+          hudsonRealm.createAccount("admin", "admin_password")  # Cambia la contraseña por una segura
+          instance.setSecurityRealm(hudsonRealm)
 
-    - name: Reiniciar Jenkins para aplicar script Groovy
-      docker_container:
-        name: jenkins
-        state: restarted
+          def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+          strategy.setAllowAnonymousRead(false)
+          instance.setAuthorizationStrategy(strategy)
 
-    - name: Esperar que Jenkins esté disponible tras reinicio
-      uri:
-        url: "{{ jenkins_url }}/login"
-        method: GET
-        status_code: 200
-      register: result
-      until: result.status == 200
-      retries: 30
-      delay: 10
+          instance.save()
 
-    - name: Descargar Jenkins CLI
-      get_url:
-        url: "{{ jenkins_url }}/jnlpJars/jenkins-cli.jar"
-        dest: /tmp/jenkins-cli.jar
+    - name: Crear carpeta init.groovy.d dentro del contenedor Jenkins
+      shell: docker exec jenkins mkdir -p /var/jenkins_home/init.groovy.d
 
-    - name: Instalar plugins necesarios
-      shell: >
-        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
-        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }}
-        install-plugin {{ item }} -deploy
-      loop: "{{ jenkins_plugins }}"
-      args:
-        executable: /bin/bash
+    - name: Copiar script Groovy dentro del contenedor Jenkins
+      shell: docker cp /tmp/basic-security.groovy jenkins:/var/jenkins_home/init.groovy.d/basic-security.groovy
 
-    - name: Esperar que Jenkins esté disponible tras plugins
-      uri:
-        url: "{{ jenkins_url }}/login"
-        method: GET
-        status_code: 200
-      register: result
-      until: result.status == 200
-      retries: 15
-      delay: 10
-
-    - name: Obtener Crumb de Jenkins
-      uri:
-        url: "{{ jenkins_url }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"
-        method: GET
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        return_content: yes
-      register: crumb
-
-    - name: Crear credencial Docker Hub
-      uri:
-        url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: application/json
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
-        body_format: json
-        body: >
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "dockerhub-cred",
-              "username": "dylalva",
-              "password": "{{ lookup('env', 'DOCKER_PASSWORD') }}",
-              "description": "Docker Hub Credentials",
-              "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-            }
-          }
-
-    - name: Crear credencial Azure SP
-      uri:
-        url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: application/json
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
-        body_format: json
-        body: >
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "azure-service-principal",
-              "subscriptionId": "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}",
-              "clientId": "{{ lookup('env', 'AZURE_CLIENT_ID') }}",
-              "clientSecret": "{{ lookup('env', 'AZURE_CLIENT_SECRET') }}",
-              "tenant": "{{ lookup('env', 'AZURE_TENANT_ID') }}",
-              "description": "Azure Service Principal",
-              "$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
-            }
-          }
-
-    - name: Crear pipeline desde archivo XML
-      uri:
-        url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: application/xml
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
-        body: "{{ lookup('file', 'infrastructure/job-config.xml') }}"
+    - name: Reiniciar contenedor Jenkins para aplicar configuración
+      shell: docker restart jenkins

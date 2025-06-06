@@ -22,18 +22,16 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass curl openjdk-11-jdk
 
-      ##############################################################
-      # 1) Ejecutar playbook que levanta Jenkins + Groovy de seguridad
-      ##############################################################
-      - name: Levantar Jenkins y aplicar Groovy de seguridad
+      - name: Levantar Jenkins
         run: |
           ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
 
-      ##############################################################
-      # 2) Ejecutar playbook que instala plugins, credenciales y pipeline
-      ##############################################################
+      - name: Ejecutar Groovy de seguridad
+        run: |
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
+
       - name: Instalar plugins, credenciales y crear pipeline
         run: |
           ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-configure.yml
