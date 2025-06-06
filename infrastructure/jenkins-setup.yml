@@ -86,9 +86,10 @@
         executable: /bin/bash
 
     - name: Reiniciar contenedor Jenkins para que ejecute el Groovy de seguridad
-      docker_container:
-        name: "{{ jenkins_container_name }}"
-        state: restarted
+      shell: docker restart {{ jenkins_container_name }}
+      args:
+        executable: /bin/bash
+
 
     - name: Verificar que contenedor Jenkins esté corriendo
       shell: docker ps -f name={{ jenkins_container_name }} --format "{{ '{{' }}.Names{{ '}}' }}"
