@@ -49,16 +49,6 @@
         delay: 10
         timeout: 120
 
-    # Opcional, si ves que init.groovy.d tarda en crearse:
-    - name: (Opcional) Esperar a que /var/jenkins_home/init.groovy.d exista dentro del contenedor
-      shell: |
-        until docker exec {{ jenkins_container_name }} test -d /var/jenkins_home/init.groovy.d; do
-          echo "Esperando init.groovy.d..."
-          sleep 5
-        done
-      args:
-        executable: /bin/bash
-
     - name: Instalar curl dentro del contenedor Jenkins
       shell: |
         docker exec -u 0 {{ jenkins_container_name }} bash -c "
