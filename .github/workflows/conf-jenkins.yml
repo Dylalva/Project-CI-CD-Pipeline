@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repositorio
         uses: actions/checkout@v3
 
       - name: Setup SSH key
@@ -22,99 +22,13 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass curl openjdk-11-jdk
 
-      - name: Ejecutar playbook para configurar Jenkins (copiar script y reiniciar contenedor)
+      - name: Ejecutar playbook para configurar Jenkins
         run: |
           ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
-
-      - name: Esperar a que Jenkins esté listo
-        run: |
-          until curl -s http://$JENKINS_URL/login > /dev/null; do
-            echo "Esperando Jenkins..."
-            sleep 10
-          done
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Descargar Jenkins CLI
-        run: wget http://$JENKINS_URL/jnlpJars/jenkins-cli.jar
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Instalar plugins necesarios
-        run: |
-          java -jar jenkins-cli.jar -s http://$JENKINS_URL -auth admin:admin_password install-plugin docker-plugin docker-workflow azure-credentials azure-cli -deploy
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Esperar a que Jenkins esté listo
-        run: |
-          until curl -s -f http://$JENKINS_URL/login > /dev/null; do
-            echo "Esperando Jenkins..."
-            sleep 10
-          done
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Obtener Crumb de Jenkins (CSRF token)
-        id: get_crumb
-        run: |
-          crumb=$(curl -s --user admin:${{ secrets.JENKINS_API_TOKEN }} "http://$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
-          echo "crumb=$crumb" >> $GITHUB_OUTPUT
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Agregar credenciales Docker Hub
-        run: |
-          curl --fail -X POST "http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials" \
-            --user admin:${{ secrets.JENKINS_API_TOKEN }} \
-            -H "${{ steps.get_crumb.outputs.crumb }}" \
-            -H "Content-Type: application/json" \
-            -d @- <<EOF
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "dockerhub-cred",
-              "username": "dylalva",
-              "password": "${{ secrets.DOCKER_PASSWORD }}",
-              "description": "Docker Hub Credentials",
-              "\$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-            }
-          }
-          EOF
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Agregar credenciales Azure Service Principal
-        run: |
-          curl --fail -X POST "http://$JENKINS_URL/credentials/store/system/domain/_/createCredentials" \
-            --user admin:${{ secrets.JENKINS_API_TOKEN }} \
-            -H "${{ steps.get_crumb.outputs.crumb }}" \
-            -H "Content-Type: application/json" \
-            -d @- <<EOF
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "azure-service-principal",
-              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
-              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
-              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
-              "tenant": "${{ secrets.AZURE_TENANT_ID }}",
-              "description": "Azure Service Principal Credentials",
-              "\$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
-            }
-          }
-          EOF
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
-
-      - name: Crear pipeline Jenkins
-        run: |
-          curl --fail -X POST "http://$JENKINS_URL/createItem?name=ci-cd-kube" \
-            --user admin:${{ secrets.JENKINS_API_TOKEN }} \
-            -H "${{ steps.get_crumb.outputs.crumb }}" \
-            -H "Content-Type: application/xml" \
-            --data-binary @infrastructure/job-config.xml
-        env:
-          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

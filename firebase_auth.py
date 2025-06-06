@@ -1,10 +1,7 @@
 import os
-from dotenv import load_dotenv
 import pyrebase
 from flask import session
 import requests
-
-load_dotenv()
 
 firebase_config = {
   "apiKey": "AIzaSyDGumoDc1Gr0iNcOjFFpwTvU2WUXWV0LLI",
