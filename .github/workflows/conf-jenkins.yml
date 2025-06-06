@@ -17,20 +17,20 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Instalar Ansible y Docker en el runner
-        run: |
-          sudo apt update
-          sudo apt install -y ansible sshpass curl openjdk-17-jdk
-
-      - name: Levantar Jenkins
-        run: |
-          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-
-      - name: Ejecutar Groovy de seguridad
-        run: |
-          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
+#      - name: Instalar Ansible y Docker en el runner
+#        run: |
+#          sudo apt update
+#          sudo apt install -y ansible sshpass curl openjdk-17-jdk
+#
+#      - name: Levantar Jenkins
+#        run: |
+#          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
+#        env:
+#          ANSIBLE_HOST_KEY_CHECKING: "False"
+#
+#      - name: Ejecutar Groovy de seguridad
+#        run: |
+#          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
 
       - name: Instalar plugins, credenciales y crear pipeline
         run: |
