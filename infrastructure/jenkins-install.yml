@@ -30,25 +30,6 @@
         state: started
         enabled: yes
 
-    - name: Crear volumen jenkins_home
-      shell: docker volume create {{ docker_jenkins_home }}
-      register: volume_created
-      changed_when: "'{{ docker_jenkins_home }}' in volume_created.stdout"
-
-    - name: Iniciar contenedor Jenkins (sin seguridad todavía)
-      docker_container:
-        name: jenkins
-        image: jenkins/jenkins:lts
-        state: started
-        recreate: yes
-        restart_policy: unless-stopped
-        ports:
-          - "8080:8080"
-          - "50000:50000"
-        volumes:
-          - "{{ docker_jenkins_home }}:/var/jenkins_home"
-          - "/var/run/docker.sock:/var/run/docker.sock"
-
     - name: Esperar a que Jenkins inicialice
       wait_for:
         port: 8080
@@ -57,7 +38,7 @@
 
     - name: Copiar script de seguridad para crear admin
       copy:
-        src: infrastructure/basic-security.groovy
+        src: basic-security.groovy
         dest: /var/lib/docker/volumes/{{ docker_jenkins_home }}/_data/init.groovy.d/basic-security.groovy
 
     - name: Reiniciar Jenkins para aplicar script Groovy
