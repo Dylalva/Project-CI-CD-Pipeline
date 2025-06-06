@@ -6,7 +6,7 @@
   vars:
     docker_jenkins_home: jenkins_home
     jenkins_container_name: jenkins
-
+    host_jenkins_data_dir: "/var/lib/docker/volumes/{{ docker_jenkins_home }}/_data"
   tasks:
     - name: Actualizar repositorios APT en la VM
       apt:
