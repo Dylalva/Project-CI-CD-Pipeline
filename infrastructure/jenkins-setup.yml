@@ -87,9 +87,8 @@
 
     - name: Copiar basic-security.groovy dentro del contenedor Jenkins
       command: >
-        docker cp basic-security.groovy {{ jenkins_container_name }}:/var/jenkins_home/init.groovy.d/basic-security.groovy
-      args:
-        chdir: "{{ playbook_dir }}"
+        docker cp {{ playbook_dir }}/basic-security.groovy
+        {{ jenkins_container_name }}:/var/jenkins_home/init.groovy.d/basic-security.groovy
 
     - name: Reiniciar contenedor Jenkins para que ejecute el Groovy de seguridad
       docker_container:
