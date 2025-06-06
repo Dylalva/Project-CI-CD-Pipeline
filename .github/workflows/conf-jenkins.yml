@@ -22,11 +22,11 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass curl openjdk-17-jdk
 
-      - name: Levantar Jenkins
-        run: |
-          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+#      - name: Levantar Jenkins
+#        run: |
+#          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
+#        env:
+#          ANSIBLE_HOST_KEY_CHECKING: "False"
 
       - name: Ejecutar Groovy de seguridad
         run: |
