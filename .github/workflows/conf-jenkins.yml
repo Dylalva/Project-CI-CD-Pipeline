@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup_jenkins:
+  jenkins_full_setup:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repositorio
+      - name: Checkout del repositorio
         uses: actions/checkout@v3
 
       - name: Setup SSH key
@@ -17,14 +17,26 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Instalar Ansible y herramientas necesarias
+      - name: Instalar Ansible y Docker en el runner
         run: |
           sudo apt update
-          sudo apt install -y ansible sshpass curl openjdk-11-jdk
+          sudo apt install -y ansible sshpass curl openjdk-11-jdk docker.io
 
-      - name: Ejecutar playbook para configurar Jenkins
+      ##############################################################
+      # 1) Ejecutar playbook que levanta Jenkins + Groovy de seguridad
+      ##############################################################
+      - name: Levantar Jenkins y aplicar Groovy de seguridad
         run: |
-          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-install.yml
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-setup.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      ##############################################################
+      # 2) Ejecutar playbook que instala plugins, credenciales y pipeline
+      ##############################################################
+      - name: Instalar plugins, credenciales y crear pipeline
+        run: |
+          ansible-playbook -i infrastructure/hosts.ini infrastructure/jenkins-configure.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

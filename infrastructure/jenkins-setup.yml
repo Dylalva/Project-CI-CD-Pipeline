@@ -1,17 +1,24 @@
 ---
-- name: Configurar Jenkins en VM Azure
+- name: Levantar y configurar Jenkins (Groovy de seguridad + herramientas)
   hosts: jenkins_vm
   become: true
+
   vars:
     docker_jenkins_home: jenkins_home
+    jenkins_container_name: jenkins
+
   tasks:
-    - name: Actualizar repositorios
+    - name: Actualizar repositorios APT
       apt:
         update_cache: yes
 
-    - name: Instalar Docker
+    - name: Instalar Docker y utilidades básicas
       apt:
-        name: docker.io
+        name:
+          - docker.io
+          - curl
+          - wget
+          - git
         state: present
 
     - name: Asegurar que Docker esté iniciado y habilitado
@@ -20,15 +27,20 @@
         state: started
         enabled: yes
 
-    - name: Descargar imagen Jenkins
+    - name: Crear volumen Docker 'jenkins_home'
+      command: docker volume create {{ docker_jenkins_home }}
+      register: volume_created
+      changed_when: "'{{ docker_jenkins_home }}' in volume_created.stdout"
+
+    - name: Descargar imagen Jenkins LTS
       docker_image:
         name: jenkins/jenkins
         tag: lts
         source: pull
 
-    - name: Ejecutar contenedor Jenkins
+    - name: Iniciar contenedor Jenkins
       docker_container:
-        name: jenkins
+        name: "{{ jenkins_container_name }}"
         image: jenkins/jenkins:lts
         state: started
         recreate: yes
@@ -42,7 +54,7 @@
 
     - name: Instalar kubectl dentro del contenedor Jenkins
       shell: |
-        docker exec -u 0 jenkins bash -c "
+        docker exec -u 0 {{ jenkins_container_name }} bash -c "
           curl -LO https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/
@@ -52,7 +64,7 @@
 
     - name: Instalar Azure CLI dentro del contenedor Jenkins
       shell: |
-        docker exec -u 0 jenkins bash -c "
+        docker exec -u 0 {{ jenkins_container_name }} bash -c "
           curl -sL https://aka.ms/InstallAzureCLIDeb | bash
         "
       args:
@@ -60,18 +72,38 @@
 
     - name: Instalar Docker dentro del contenedor Jenkins
       shell: |
-        docker exec -u 0 jenkins bash -c "
+        docker exec -u 0 {{ jenkins_container_name }} bash -c "
           apt-get update && apt-get install -y docker.io
         "
       args:
         executable: /bin/bash
 
+    - name: Esperar a que Jenkins inicialice (dir init.groovy.d)
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 120
+
+    - name: Copiar script Groovy de seguridad dentro del contenedor Jenkins
+      # Con chdir: playbook_dir garantizamos que Ansible busque basic-security.groovy
+      # en la misma carpeta que este playbook.
+      command: >
+        docker cp basic-security.groovy {{ jenkins_container_name }}:/var/jenkins_home/init.groovy.d/basic-security.groovy
+      args:
+        chdir: "{{ playbook_dir }}"
+
+    - name: Reiniciar contenedor Jenkins para aplicar Groovy
+      docker_container:
+        name: "{{ jenkins_container_name }}"
+        state: restarted
+
     - name: Verificar que contenedor Jenkins esté corriendo
-      shell: docker ps -f name=jenkins --format "{{ '{{' }}.Names{{ '}}' }}"
+      shell: docker ps -f name={{ jenkins_container_name }} --format "{{ '{{' }}.Names{{ '}}' }}"
       register: jenkins_container
-      failed_when: "'jenkins' not in jenkins_container.stdout"
+      failed_when: "'{{ jenkins_container_name }}' not in jenkins_container.stdout"
       changed_when: false
 
-    - name: Mostrar mensaje de éxito
+    - name: Jenkins arrancó y Groovy ejecutado ✔
       debug:
-        msg: "Jenkins configurado y corriendo en la VM!"
+        msg: "✅ Jenkins se volvió a iniciar con Groovy de seguridad. Ahora ya hay usuario 'admin'."
+
