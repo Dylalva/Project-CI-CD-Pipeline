@@ -77,6 +77,44 @@
     ##################################################################
     # 5) Crear el pipeline desde job-config.xml
     ##################################################################
+    - name: Crear archivo job-config.xml
+      copy:
+        dest: "/tmp/job-config.xml"  # Ruta temporal para almacenar el archivo XML
+        content: |
+          <?xml version='1.1' encoding='UTF-8'?>
+          <flow-definition plugin="workflow-job@2.42">
+            <description>Pipeline para CI/CD desde GitHub</description>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+              <hudson.triggers.SCMTrigger>
+                <spec>@hourly</spec> <!-- Cambia si quieres otro trigger -->
+                <ignorePostCommitHooks>false</ignorePostCommitHooks>
+              </hudson.triggers.SCMTrigger>
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.93">
+              <scm class="hudson.plugins.git.GitSCM" plugin="git@4.13.4">
+                <configVersion>2</configVersion>
+                <userRemoteConfigs>
+                  <hudson.plugins.git.UserRemoteConfig>
+                    <url>https://github.com/Dylalva/Project-CI-CD-Pipeline.git</url>
+                  </hudson.plugins.git.UserRemoteConfig>
+                </userRemoteConfigs>
+                <branches>
+                  <hudson.plugins.git.BranchSpec>
+                    <name>*/master</name>
+                  </hudson.plugins.git.BranchSpec>
+                </branches>
+                <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+                <submoduleCfg class="list"/>
+                <extensions/>
+              </scm>
+              <scriptPath>Jenkinsfile</scriptPath>
+              <lightweight>true</lightweight>
+            </definition>
+            <triggers/>
+            <disabled>false</disabled>
+          </flow-definition>
+
     - name: Crear pipeline '{{ job_name }}' desde XML
       uri:
         url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
@@ -85,7 +123,8 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/xml"
-        body: "{{ lookup('file', 'infrastructure/job-config.xml') }}"
+        body: "{{ lookup('file', '/tmp/job-config.xml') }}"  # Usamos la ruta local temporal del archivo
+
 
     ##################################################################
     # 6) Crear credencial Docker Hub
