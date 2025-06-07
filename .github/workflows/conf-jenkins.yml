@@ -34,9 +34,12 @@ jobs:
 #        env:
 #          ANSIBLE_HOST_KEY_CHECKING: "False"
 
-      - name: Instalar plugins, credenciales y crear pipeline
+#      - name: Instalar plugins, credenciales y crear pipeline
+#        run: |
+#          ansible-playbook -i infrastructure/hosts.ini -vvvv infrastructure/jenkins-configure.yml
+      - name: Instalar credenciales
         run: |
-          ansible-playbook -i infrastructure/hosts.ini -vvvv infrastructure/jenkins-configure.yml
+          ansible-playbook -i infrastructure/hosts.ini -vvvv infrastructure/jenkins-credentials.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

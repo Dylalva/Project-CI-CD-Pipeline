@@ -130,54 +130,6 @@
       args:
         executable: /bin/bash
 
-    - name: Crear credencial Docker Hub en Jenkins
-      uri:
-        url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: "application/json"
-        body_format: json
-        body: >
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "dockerhub-cred",
-              "username": "dylalva",
-              "password": "{{ lookup('env', 'DOCKER_PASSWORD') }}",
-              "description": "Docker Hub Credentials",
-              "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-            }
-          }
-        status_code: [200, 302]
-      ignore_errors: yes
-
-    - name: Crear credencial Azure SP en Jenkins
-      uri:
-        url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: "application/json"
-        body_format: json
-        body: >
-          {
-            "credentials": {
-              "scope": "GLOBAL",
-              "id": "azure-service-principal",
-              "subscriptionId": "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}",
-              "clientId": "{{ lookup('env', 'AZURE_CLIENT_ID') }}",
-              "clientSecret": "{{ lookup('env', 'AZURE_CLIENT_SECRET') }}",
-              "tenant": "{{ lookup('env', 'AZURE_TENANT_ID') }}",
-              "description": "Azure Service Principal",
-              "$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
-            }
-          }
-        status_code: [200, 302]
-      ignore_errors: yes
-
     - name: Limpiar archivos temporales
       file:
         path: "{{ item }}"
@@ -186,6 +138,6 @@
         - /tmp/jenkins-cli.jar
         - /tmp/job-config.xml
 
-    - name: Jenkins configurado con plugins, credenciales y el job '{{ job_name }}' creado 🎉
+    - name: Jenkins configurado con plugins y el job '{{ job_name }}' creado 🎉
       debug:
         msg: "✅ Jenkins ya tiene plugins, credenciales y el job '{{ job_name }}' creado."
