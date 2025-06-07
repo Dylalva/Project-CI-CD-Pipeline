@@ -62,7 +62,7 @@
         executable: /bin/bash
 
     ##################################################################
-    # 4) Esperar de nuevo tras instalar plugins
+    # 4) Esperar a que Jenkins esté disponible tras plugins
     ##################################################################
     - name: Esperar a que Jenkins esté disponible tras plugins
       uri:
@@ -115,6 +115,21 @@
             <disabled>false</disabled>
           </flow-definition>
 
+    ##################################################################
+    # Verificar existencia del archivo job-config.xml
+    ##################################################################
+    - name: Verificar existencia de job-config.xml
+      stat:
+        path: /tmp/job-config.xml
+      register: job_config_status
+
+    - name: Mostrar si el archivo job-config.xml existe
+      debug:
+        msg: "El archivo job-config.xml existe: {{ job_config_status.stat.exists }}"
+
+    ##################################################################
+    # Crear el pipeline desde el archivo job-config.xml
+    ##################################################################
     - name: Crear pipeline '{{ job_name }}' desde XML
       uri:
         url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
@@ -124,7 +139,6 @@
         headers:
           Content-Type: "application/xml"
         body: "{{ lookup('file', '/tmp/job-config.xml') }}"
-
 
     ##################################################################
     # 6) Crear credencial Docker Hub
