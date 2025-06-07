@@ -138,7 +138,7 @@
         remote_src: true
 
     ##################################################################
-    # Crear el pipeline desde el archivo job-config.xml
+    # 7) Crear el pipeline desde el archivo job-config.xml
     ##################################################################
     - name: Crear pipeline '{{ job_name }}' desde XML
       uri:
@@ -151,7 +151,7 @@
         body: "{{ lookup('file', '/tmp/job-config.xml') }}"
 
     ##################################################################
-    # 6) Crear credencial Docker Hub
+    # 8) Crear credencial Docker Hub
     ##################################################################
     - name: Crear credencial Docker Hub en Jenkins
       uri:
@@ -175,7 +175,7 @@
           }
 
     ##################################################################
-    # 7) Crear credencial Azure Service Principal
+    # 9) Crear credencial Azure Service Principal
     ##################################################################
     - name: Crear credencial Azure SP en Jenkins
       uri:
@@ -201,7 +201,7 @@
           }
 
     ##################################################################
-    # 9) Mensaje final de éxito
+    # 10) Mensaje final de éxito
     ##################################################################
     - name: Jenkins configurado con plugins, credenciales y pipeline 🎉
       debug:
