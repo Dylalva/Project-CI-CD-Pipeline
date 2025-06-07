@@ -1,7 +1,7 @@
 ---
 - name: Instalar plugins, credenciales y pipeline en Jenkins
   hosts: jenkins_vm
-  become: true
+  become: yes
 
   vars:
     # URL localhost dentro de la VM (Jenkins escucha en el contenedor, puerto 8080 expuesto al host)
@@ -135,7 +135,7 @@
         src: "/tmp/job-config.xml"
         dest: "/tmp/job-config.xml"
         mode: '0644'
-        
+
     ##################################################################
     # Crear el pipeline desde el archivo job-config.xml
     ##################################################################
