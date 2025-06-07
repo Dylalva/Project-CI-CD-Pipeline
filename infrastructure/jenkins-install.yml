@@ -16,6 +16,16 @@
         state: started
         enabled: yes
 
+    - name: Esperar a que Jenkins esté disponible (puerto 8080)
+      uri:
+        url: http://localhost:8080/login
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 30
+      delay: 10
+
     - name: Crear script Groovy para crear usuario admin en VM temporalmente
       copy:
         dest: /tmp/basic-security.groovy
@@ -33,6 +43,8 @@
           strategy.setAllowAnonymousRead(false)
           instance.setAuthorizationStrategy(strategy)
 
+          def csrf = instance.getExtensionList('hudson.security.csrf.CrumbIssuer')[0]
+          csrf.setEnabled(false)
           instance.save()
 
     - name: Crear carpeta init.groovy.d dentro del contenedor Jenkins
@@ -43,3 +55,18 @@
 
     - name: Reiniciar contenedor Jenkins para aplicar configuración
       shell: docker restart jenkins
+
+    - name: Esperar a que Jenkins esté completamente reiniciado
+      uri:
+        url: http://localhost:8080/login
+        method: GET
+        status_code: 200
+      register: result_restarted
+      until: result_restarted.status == 200
+      retries: 30
+      delay: 10
+
+    - name: Verificar si el usuario admin está creado
+      shell: curl -s -u admin:admin_password http://localhost:8080/api/json | jq '.user'
+      register: result_user_check
+      failed_when: result_user_check.rc != 0
