@@ -165,6 +165,14 @@
           }
 
     ##################################################################
+    # 6) Copiar el archivo job-config.xml a la máquina Jenkins
+    ##################################################################
+    - name: Copiar archivo job-config.xml al servidor Jenkins
+      copy:
+        src: "/tmp/job-config.xml"
+        dest: "/tmp/job-config.xml"
+        mode: '0644'
+    ##################################################################
     # 7) Crear credencial Azure Service Principal
     ##################################################################
     - name: Crear credencial Azure SP en Jenkins
