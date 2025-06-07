@@ -21,6 +21,42 @@
       - azure-credentials
       - azure-cli
 
+    # Contenido XML del job como variable separada
+    job_xml_content: |
+      <?xml version='1.1' encoding='UTF-8'?>
+      <flow-definition plugin="workflow-job@2.42">
+        <description>Pipeline para CI/CD desde GitHub</description>
+        <keepDependencies>false</keepDependencies>
+        <properties>
+          <hudson.triggers.SCMTrigger>
+            <spec>@hourly</spec>
+            <ignorePostCommitHooks>false</ignorePostCommitHooks>
+          </hudson.triggers.SCMTrigger>
+        </properties>
+        <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.93">
+          <scm class="hudson.plugins.git.GitSCM" plugin="git@4.13.4">
+            <configVersion>2</configVersion>
+            <userRemoteConfigs>
+              <hudson.plugins.git.UserRemoteConfig>
+                <url>https://github.com/Dylalva/Project-CI-CD-Pipeline.git</url>
+              </hudson.plugins.git.UserRemoteConfig>
+            </userRemoteConfigs>
+            <branches>
+              <hudson.plugins.git.BranchSpec>
+                <name>*/master</name>
+              </hudson.plugins.git.BranchSpec>
+            </branches>
+            <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+            <submoduleCfg class="list"/>
+            <extensions/>
+          </scm>
+          <scriptPath>Jenkinsfile</scriptPath>
+          <lightweight>true</lightweight>
+        </definition>
+        <triggers/>
+        <disabled>false</disabled>
+      </flow-definition>
+
   tasks:
     - name: Instalar OpenJDK 17
       apt:
@@ -62,83 +98,76 @@
         executable: /bin/bash
 
     ##################################################################
-    # 4) Esperar a que Jenkins esté disponible tras plugins
+    # 4) Reiniciar Jenkins tras instalar plugins
     ##################################################################
-    - name: Esperar a que Jenkins esté disponible tras plugins
+    - name: Reiniciar Jenkins tras plugins
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
+        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }}
+        safe-restart
+      args:
+        executable: /bin/bash
+
+    ##################################################################
+    # 5) Esperar a que Jenkins esté disponible tras reinicio
+    ##################################################################
+    - name: Esperar a que Jenkins esté disponible tras reinicio
       uri:
         url: "{{ jenkins_url }}/login"
         method: GET
         status_code: 200
-      register: result_plugins
-      until: result_plugins.status == 200
-      retries: 20
-      delay: 10
+      register: result_restart
+      until: result_restart.status == 200
+      retries: 30
+      delay: 15
 
     ##################################################################
-    # 5) Crear el pipeline desde job-config.xml
+    # 6) Crear archivo temporal con el XML del job
     ##################################################################
-    - name: Crear archivo job-config.xml
+    - name: Crear archivo temporal con XML del job
       copy:
-        dest: "/tmp/job-config.xml"
-        content: |
-          <?xml version='1.1' encoding='UTF-8'?>
-          <flow-definition plugin="workflow-job@2.42">
-            <description>Pipeline para CI/CD desde GitHub</description>
-            <keepDependencies>false</keepDependencies>
-            <properties>
-              <hudson.triggers.SCMTrigger>
-                <spec>@hourly</spec> <!-- Cambia si quieres otro trigger -->
-                <ignorePostCommitHooks>false</ignorePostCommitHooks>
-              </hudson.triggers.SCMTrigger>
-            </properties>
-            <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.93">
-              <scm class="hudson.plugins.git.GitSCM" plugin="git@4.13.4">
-                <configVersion>2</configVersion>
-                <userRemoteConfigs>
-                  <hudson.plugins.git.UserRemoteConfig>
-                    <url>https://github.com/Dylalva/Project-CI-CD-Pipeline.git</url>
-                  </hudson.plugins.git.UserRemoteConfig>
-                </userRemoteConfigs>
-                <branches>
-                  <hudson.plugins.git.BranchSpec>
-                    <name>*/master</name>
-                  </hudson.plugins.git.BranchSpec>
-                </branches>
-                <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-                <submoduleCfg class="list"/>
-                <extensions/>
-              </scm>
-              <scriptPath>Jenkinsfile</scriptPath>
-              <lightweight>true</lightweight>
-            </definition>
-            <triggers/>
-            <disabled>false</disabled>
-          </flow-definition>
+        content: "{{ job_xml_content }}"
+        dest: /tmp/job-config.xml
+        mode: '0644'
 
     ##################################################################
-    # 6) Leer el contenido del archivo XML desde la máquina remota
+    # 7) Verificar si el job ya existe
     ##################################################################
-    - name: Leer contenido del archivo job-config.xml
-      slurp:
-        src: /tmp/job-config.xml
-      register: job_config_content
+    - name: Verificar si el job ya existe
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
+        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }}
+        list-jobs
+      register: existing_jobs
+      args:
+        executable: /bin/bash
 
     ##################################################################
-    # 7) Crear el pipeline desde el archivo job-config.xml
+    # 8) Crear job usando Jenkins CLI
     ##################################################################
-    - name: Crear pipeline '{{ job_name }}' desde XML
-      uri:
-        url: "{{ jenkins_url }}/createItem?name={{ job_name }}"
-        method: POST
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        headers:
-          Content-Type: "application/xml"
-        body: "{{ job_config_content.content | b64decode }}"
-        status_code: [200, 201]
+    - name: Crear job usando Jenkins CLI
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
+        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }}
+        create-job {{ job_name }} < /tmp/job-config.xml
+      when: job_name not in existing_jobs.stdout
+      args:
+        executable: /bin/bash
 
     ##################################################################
-    # 8) Crear credencial Docker Hub
+    # 9) Actualizar job si ya existe
+    ##################################################################
+    - name: Actualizar job si ya existe
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
+        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }}
+        update-job {{ job_name }} < /tmp/job-config.xml
+      when: job_name in existing_jobs.stdout
+      args:
+        executable: /bin/bash
+
+    ##################################################################
+    # 10) Crear credencial Docker Hub
     ##################################################################
     - name: Crear credencial Docker Hub en Jenkins
       uri:
@@ -160,9 +189,11 @@
               "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
             }
           }
+        status_code: [200, 302]
+      ignore_errors: yes
 
     ##################################################################
-    # 9) Crear credencial Azure Service Principal
+    # 11) Crear credencial Azure Service Principal
     ##################################################################
     - name: Crear credencial Azure SP en Jenkins
       uri:
@@ -186,9 +217,22 @@
               "$class": "com.microsoft.azure.credentials.AzureServicePrincipal"
             }
           }
+        status_code: [200, 302]
+      ignore_errors: yes
 
     ##################################################################
-    # 10) Mensaje final de éxito
+    # 12) Limpiar archivos temporales
+    ##################################################################
+    - name: Limpiar archivos temporales
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/jenkins-cli.jar
+        - /tmp/job-config.xml
+
+    ##################################################################
+    # 13) Mensaje final de éxito
     ##################################################################
     - name: Jenkins configurado con plugins, credenciales y pipeline 🎉
       debug:
