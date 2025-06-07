@@ -116,26 +116,12 @@
           </flow-definition>
 
     ##################################################################
-    # Verificar existencia del archivo job-config.xml
+    # 6) Leer el contenido del archivo XML desde la máquina remota
     ##################################################################
-    - name: Verificar existencia de job-config.xml
-      stat:
-        path: /tmp/job-config.xml
-      register: job_config_status
-
-    - name: Mostrar si el archivo job-config.xml existe
-      debug:
-        msg: "El archivo job-config.xml existe: {{ job_config_status.stat.exists }}"
-
-    ##################################################################
-    # 6) Copiar el archivo job-config.xml a la máquina Jenkins
-    ##################################################################
-    - name: Copiar archivo job-config.xml al servidor Jenkins
-      copy:
-        src: "/tmp/job-config.xml"
-        dest: "/tmp/job-config.xml"
-        mode: '0644'
-        remote_src: true
+    - name: Leer contenido del archivo job-config.xml
+      slurp:
+        src: /tmp/job-config.xml
+      register: job_config_content
 
     ##################################################################
     # 7) Crear el pipeline desde el archivo job-config.xml
@@ -148,7 +134,8 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/xml"
-        body: "{{ lookup('file', '/tmp/job-config.xml') }}"
+        body: "{{ job_config_content.content | b64decode }}"
+        status_code: [200, 201]
 
     ##################################################################
     # 8) Crear credencial Docker Hub
