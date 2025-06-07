@@ -79,7 +79,7 @@
     ##################################################################
     - name: Crear archivo job-config.xml
       copy:
-        dest: "/tmp/job-config.xml"  # Ruta temporal para almacenar el archivo XML
+        dest: "/tmp/job-config.xml"
         content: |
           <?xml version='1.1' encoding='UTF-8'?>
           <flow-definition plugin="workflow-job@2.42">
@@ -123,7 +123,7 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/xml"
-        body: "{{ lookup('file', '/tmp/job-config.xml') }}"  # Usamos la ruta local temporal del archivo
+        body: "{{ lookup('file', '/tmp/job-config.xml') }}"
 
 
     ##################################################################
