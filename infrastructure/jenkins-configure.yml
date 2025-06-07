@@ -4,34 +4,25 @@
   become: yes
 
   vars:
-    # URL localhost dentro de la VM (Jenkins escucha en el contenedor, puerto 8080 expuesto al host)
     jenkins_url: http://localhost:8080
-
-    # Credenciales estáticas (el Groovy del primer playbook ya creó user 'admin' con esta password)
     jenkins_admin_user: admin
     jenkins_admin_password: admin_password
-
-    # Nombre del job/pipeline
     job_name: ci-cd-kube
-
-    # Lista de plugins que queremos instalar
     jenkins_plugins:
       - docker-plugin
       - docker-workflow
       - azure-credentials
       - azure-cli
 
-    # Contenido XML del job como variable separada
     job_xml_content: |
       <?xml version='1.1' encoding='UTF-8'?>
       <flow-definition plugin="workflow-job@2.42">
         <description>Pipeline para CI/CD desde GitHub</description>
         <keepDependencies>false</keepDependencies>
         <properties>
-          <hudson.triggers.SCMTrigger>
+          <jenkins.triggers.TimerTrigger>
             <spec>@hourly</spec>
-            <ignorePostCommitHooks>false</ignorePostCommitHooks>
-          </hudson.triggers.SCMTrigger>
+          </jenkins.triggers.TimerTrigger>
         </properties>
         <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.93">
           <scm class="hudson.plugins.git.GitSCM" plugin="git@4.13.4">
@@ -64,9 +55,6 @@
         state: present
         update_cache: yes
 
-    ##################################################################
-    # 1) Esperar a que Jenkins esté UP y responda en /login
-    ##################################################################
     - name: Esperar a que Jenkins esté disponible (puerto 8080)
       uri:
         url: "{{ jenkins_url }}/login"
@@ -77,17 +65,11 @@
       retries: 30
       delay: 10
 
-    ##################################################################
-    # 2) Descargar Jenkins CLI
-    ##################################################################
     - name: Descargar jenkins-cli.jar
       get_url:
         url: "{{ jenkins_url }}/jnlpJars/jenkins-cli.jar"
         dest: /tmp/jenkins-cli.jar
 
-    ##################################################################
-    # 3) Instalar plugins necesarios
-    ##################################################################
     - name: Instalar plugins de Jenkins
       shell: >
         java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
@@ -97,9 +79,6 @@
       args:
         executable: /bin/bash
 
-    ##################################################################
-    # 4) Reiniciar Jenkins tras instalar plugins
-    ##################################################################
     - name: Reiniciar Jenkins tras plugins
       shell: >
         java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
@@ -108,9 +87,6 @@
       args:
         executable: /bin/bash
 
-    ##################################################################
-    # 5) Esperar a que Jenkins esté disponible tras reinicio
-    ##################################################################
     - name: Esperar a que Jenkins esté disponible tras reinicio
       uri:
         url: "{{ jenkins_url }}/login"
@@ -121,18 +97,12 @@
       retries: 30
       delay: 15
 
-    ##################################################################
-    # 6) Crear archivo temporal con el XML del job
-    ##################################################################
     - name: Crear archivo temporal con XML del job
       copy:
         content: "{{ job_xml_content }}"
         dest: /tmp/job-config.xml
         mode: '0644'
 
-    ##################################################################
-    # 7) Verificar si el job ya existe
-    ##################################################################
     - name: Verificar si el job ya existe
       shell: >
         java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
@@ -142,9 +112,6 @@
       args:
         executable: /bin/bash
 
-    ##################################################################
-    # 8) Crear job usando Jenkins CLI
-    ##################################################################
     - name: Crear job usando Jenkins CLI
       shell: >
         java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
@@ -154,9 +121,6 @@
       args:
         executable: /bin/bash
 
-    ##################################################################
-    # 9) Actualizar job si ya existe
-    ##################################################################
     - name: Actualizar job si ya existe
       shell: >
         java -jar /tmp/jenkins-cli.jar -s {{ jenkins_url }}
@@ -166,9 +130,6 @@
       args:
         executable: /bin/bash
 
-    ##################################################################
-    # 10) Crear credencial Docker Hub
-    ##################################################################
     - name: Crear credencial Docker Hub en Jenkins
       uri:
         url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
@@ -192,9 +153,6 @@
         status_code: [200, 302]
       ignore_errors: yes
 
-    ##################################################################
-    # 11) Crear credencial Azure Service Principal
-    ##################################################################
     - name: Crear credencial Azure SP en Jenkins
       uri:
         url: "{{ jenkins_url }}/credentials/store/system/domain/_/createCredentials"
@@ -220,9 +178,6 @@
         status_code: [200, 302]
       ignore_errors: yes
 
-    ##################################################################
-    # 12) Limpiar archivos temporales
-    ##################################################################
     - name: Limpiar archivos temporales
       file:
         path: "{{ item }}"
@@ -231,9 +186,6 @@
         - /tmp/jenkins-cli.jar
         - /tmp/job-config.xml
 
-    ##################################################################
-    # 13) Mensaje final de éxito
-    ##################################################################
-    - name: Jenkins configurado con plugins, credenciales y pipeline 🎉
+    - name: Jenkins configurado con plugins, credenciales y el job '{{ job_name }}' creado 🎉
       debug:
         msg: "✅ Jenkins ya tiene plugins, credenciales y el job '{{ job_name }}' creado."
