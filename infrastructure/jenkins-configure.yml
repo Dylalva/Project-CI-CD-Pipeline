@@ -135,6 +135,7 @@
         src: "/tmp/job-config.xml"
         dest: "/tmp/job-config.xml"
         mode: '0644'
+        remote_src: true
 
     ##################################################################
     # Crear el pipeline desde el archivo job-config.xml
