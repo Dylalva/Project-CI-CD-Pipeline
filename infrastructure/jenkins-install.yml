@@ -36,7 +36,7 @@
           def instance = Jenkins.getInstance()
 
           def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-          hudsonRealm.createAccount("admin", "admin_password")  # Cambia la contraseña por una segura
+          hudsonRealm.createAccount("admin", "admin_password")
           instance.setSecurityRealm(hudsonRealm)
 
           def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
