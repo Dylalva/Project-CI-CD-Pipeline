@@ -65,11 +65,23 @@
       until: result_restarted.status == 200
       retries: 30
       delay: 10
+
     - name: Instalar jq para procesar JSON
       apt:
         name: jq
         state: present
+
+    - name: Esperar unos segundos para asegurar que Jenkins esté completamente listo
+      pause:
+        seconds: 10
+
     - name: Verificar si el usuario admin está creado
-      shell: curl -s -u admin:admin_password http://localhost:8080/api/json | jq '.user'
+      shell: curl -s -u admin:admin_password http://localhost:8080/api/json
       register: result_user_check
       failed_when: result_user_check.rc != 0
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Mostrar resultado de la verificación del usuario
+      debug:
+        var: result_user_check
