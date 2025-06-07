@@ -27,6 +27,7 @@
         name: openjdk-17-jdk
         state: present
         update_cache: yes
+
     ##################################################################
     # 1) Esperar a que Jenkins esté UP y responda en /login
     ##################################################################
@@ -74,19 +75,7 @@
       delay: 10
 
     ##################################################################
-    # 5) Obtener CSRF crumb para llamadas seguras a la API
-    ##################################################################
-    - name: Obtener CSRF crumb (API token)
-      uri:
-        url: "{{ jenkins_url }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"
-        method: GET
-        user: "{{ jenkins_admin_user }}"
-        password: "{{ jenkins_admin_password }}"
-        return_content: yes
-      register: crumb
-
-    ##################################################################
-    # 8) Crear el pipeline desde job-config.xml
+    # 5) Crear el pipeline desde job-config.xml
     ##################################################################
     - name: Crear pipeline '{{ job_name }}' desde XML
       uri:
@@ -96,7 +85,6 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/xml"
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
         body: "{{ lookup('file', 'infrastructure/job-config.xml') }}"
 
     ##################################################################
@@ -110,7 +98,6 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/json"
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
         body_format: json
         body: >
           {
@@ -135,7 +122,6 @@
         password: "{{ jenkins_admin_password }}"
         headers:
           Content-Type: "application/json"
-          "{{ crumb.content.split(':')[0] }}": "{{ crumb.content.split(':')[1] }}"
         body_format: json
         body: >
           {
