@@ -65,7 +65,10 @@
       until: result_restarted.status == 200
       retries: 30
       delay: 10
-
+    - name: Instalar jq para procesar JSON
+      apt:
+        name: jq
+        state: present
     - name: Verificar si el usuario admin está creado
       shell: curl -s -u admin:admin_password http://localhost:8080/api/json | jq '.user'
       register: result_user_check
