@@ -86,6 +86,12 @@
       args:
         executable: /bin/bash
 
+    - name: Agregar usuario jenkins al grupo docker dentro del contenedor
+      shell: |
+        docker exec -u 0 {{ jenkins_container_name }} usermod -aG docker jenkins
+      args:
+        executable: /bin/bash
+
     - name: Reiniciar contenedor Jenkins para que ejecute el Groovy de seguridad
       shell: docker restart {{ jenkins_container_name }}
       args:
