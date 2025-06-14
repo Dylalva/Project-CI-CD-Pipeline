@@ -59,15 +59,16 @@
 
     - name: Instalar kubectl dentro del contenedor Jenkins
       shell: |
-        docker exec -u 0 {{ jenkins_container_name }} bash -c '
+        docker exec -u 0 {{ jenkins_container_name }} bash -c "
           set -e
-          VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
-          curl -LO https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl
+          VERSION=\$(curl -sL https://dl.k8s.io/release/stable.txt)
+          curl -LO https://dl.k8s.io/release/\${VERSION}/bin/linux/amd64/kubectl
           chmod +x kubectl
           mv kubectl /usr/local/bin/
-        '
+        "
       args:
         executable: /bin/bash
+
 
     - name: Instalar Azure CLI dentro del contenedor Jenkins
       shell: |
