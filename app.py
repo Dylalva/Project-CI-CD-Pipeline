@@ -10,19 +10,6 @@ from utils_crypto import generate_key, hash_data, encrypt_data, decrypt_data
 import datetime
 import pyrebase
 
-'''
-Red underlines? Install the required packages first: 
-Open the Terminal in PyCharm (bottom left). 
-
-On Windows type:
-python -m pip install -r requirements.
-
-On MacOS type:
-pip3 install -r requirements.tx
-
-This will install the packages from requirements.txt for this project.
-'''
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 Bootstrap5(app)
