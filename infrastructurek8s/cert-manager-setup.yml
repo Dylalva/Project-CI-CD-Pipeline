@@ -1,0 +1,12 @@
+- name: Install cert-manager on a Kubernetes cluster
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Apply cert-manager manifest from GitHub
+      ansible.builtin.shell: |
+        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+      args:
+        executable: /bin/bash
+
+    - name: Wait for cert-manager to be ready
+      ansible.builtin.command: kubectl rollout status deployment cert-manager -n cert-manager
