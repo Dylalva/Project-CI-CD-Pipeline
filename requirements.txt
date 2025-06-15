@@ -6,3 +6,4 @@ Werkzeug==3.0.6
 requests>=2.19.1,<2.30
 pyrebase4==4.7.1
 cryptography==42.0.5
+setuptools>=65.0.0
