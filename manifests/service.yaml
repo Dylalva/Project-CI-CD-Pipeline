@@ -4,10 +4,10 @@ metadata:
   name: parte2redes-service
   namespace: default
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: parte2redes
   ports:
-  - port: 80
-    targetPort: 5000
-    protocol: TCP
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
