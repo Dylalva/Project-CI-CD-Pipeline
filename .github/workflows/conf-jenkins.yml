@@ -1,4 +1,4 @@
-name: Configurar Jenkins completo en Docker
+name: Configure Jenkins completely in Docker
 
 on:
   workflow_dispatch:
