@@ -3,22 +3,23 @@ kind: Ingress
 metadata:
   name: parte2redes-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - redes.mashalladev.site
-    secretName: parte2redes-tls
+    - hosts:
+        - redes.mashalladev.site
+      secretName: parte2redes-tls
   rules:
-  - host: redes.mashalladev.site
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: parte2redes-service
-            port:
-              number: 5000
+    - host: redes.mashalladev.site
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: parte2redes-service
+                port:
+                  number: 5000
