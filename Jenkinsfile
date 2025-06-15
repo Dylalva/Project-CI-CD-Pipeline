@@ -68,10 +68,8 @@ pipeline {
                 sh '''
                     az aks get-credentials --resource-group k8spruebas --name PRUEBAS
 
-                    kubectl apply -f manifests/cluster-issuer.yaml
                     kubectl apply -f manifests/deployment.yaml
                     kubectl apply -f manifests/service.yaml
-                    kubectl apply -f manifests/ingress.yaml
 
                     kubectl rollout restart deployment parte2redes-deployment -n default
                 '''
