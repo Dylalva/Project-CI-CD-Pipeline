@@ -10,10 +10,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - jenkinspto.mashalladev.site
+        - redes2.mashalladev.site
       secretName: parte2redes-tls
   rules:
-    - host: jenkinspto.mashalladev.site
+    - host: redes2.mashalladev.site
       http:
         paths:
           - path: /

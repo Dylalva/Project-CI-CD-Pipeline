@@ -2,9 +2,9 @@ name: Configure Jenkins completely in Docker
 
 on:
   workflow_dispatch:
-  push:
-      branches:
-        - master
+#  push:
+#      branches:
+#        - master
 
 jobs:
   jenkins_full_setup:
