@@ -231,3 +231,5 @@ Este proyecto utiliza las siguientes tecnologías y herramientas principales:
 ¡Gracias por visitar este repositorio!  
 Estoy abierto a cualquier sugerencia, comentario o recomendación que ayude a mejorar este proyecto. No dudes en abrir un issue o contactarme si tienes ideas para optimizar, corregir o extender la funcionalidad. ¡Tu retroalimentación es siempre bienvenida!
 </details>
+
+➡️ [Read the contributing guide](CONTRIBUTING.md)
