@@ -10,3 +10,9 @@
 
     - name: Wait for cert-manager to be ready
       ansible.builtin.command: kubectl rollout status deployment cert-manager -n cert-manager
+
+    - name: Install ingress-nginx controller
+      ansible.builtin.shell: |
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
+      args:
+        executable: /bin/bash
